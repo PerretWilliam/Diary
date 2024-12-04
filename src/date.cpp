@@ -65,7 +65,7 @@ namespace date
 
     do
     {
-      std::cout << BLUE << msg << RESET << " > ";
+      std::cout << MAGENTA << msg << RESET << " > ";
       getline(std::cin, entry);
 
       // Vérifier la présence de séparateurs pour ajuster la lecture

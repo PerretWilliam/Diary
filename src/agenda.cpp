@@ -166,7 +166,7 @@ namespace diary
     Event event;
     event.id = getUID(10);
     event.title = create_title("Saisissez le titre de l'évènement");
-    event.description = create_description("Saisissez la description de l'évènement");
+    event.description = create_description("Saisissez la description de l'évènement (laissez un '.' pour quitter)");
 
     bool condition = false;
     do
@@ -485,6 +485,9 @@ namespace diary
   // Menus
   std::vector<diary::Menu> initialize_menu()
   {
+#ifdef _WIN32
+    system(chcp 65001);
+#endif
     // Start menu.
     return {{{"\033[35mBienvene, que souhaitez-vous faire ?\033[0m", {{'1', "Crée un nouvel agenda", [](Global &global) -> void
                                                                        {
