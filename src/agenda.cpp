@@ -23,7 +23,7 @@ namespace diary
   {
     std::cout << "\033[2J\033[1;1H";
   }
-  void show_error(const std::string &msg)
+  void print_error(const std::string &msg)
   {
     std::cerr << RED << "Erreur : " << msg << RESET << std::endl;
   }
@@ -66,11 +66,11 @@ namespace diary
       std::getline(std::cin, title);
       if (title.empty())
       {
-        show_error("Erreur : saisissez un titre non vide !");
+        print_error("Erreur : saisissez un titre non vide !");
       }
       else if (title.find('/') != -1)
       {
-        show_error("Erreur : saisissez un titre sans '/' !");
+        print_error("Erreur : saisissez un titre sans '/' !");
       }
     } while (title.empty() || title.find('/') != -1);
     return title;
@@ -109,7 +109,7 @@ namespace diary
       case '2':
         return false;
       default:
-        show_error("ce n'est pas une réponse valide !");
+        print_error("ce n'est pas une réponse valide !");
         break;
       }
     } while (true);
@@ -131,7 +131,7 @@ namespace diary
       else if (!diary_exist(diary_name))
       {
         // Si l'agenda n'est pas trouvé on affiche une erreur.
-        show_error("l'agenda demandé n'existe pas.");
+        print_error("l'agenda demandé n'existe pas.");
       }
       else
       {
@@ -187,7 +187,7 @@ namespace diary
 
       if (date::is_reversed(event.date_begin, event.date_end))
       {
-        show_error("les dates sont inversées !");
+        print_error("les dates sont inversées !");
       }
       else
       {
@@ -228,7 +228,7 @@ namespace diary
 
     if (!is_found)
     {
-      show_error("aucun évènement ne comporte ce nom !");
+      print_error("aucun évènement ne comporte ce nom !");
       return;
     }
 
@@ -261,7 +261,7 @@ namespace diary
 
       if (!is_found)
       {
-        show_error("l'ID " + id + " n'existe pas !");
+        print_error("l'ID " + id + " n'existe pas !");
       }
     } while (!is_found);
   }
@@ -321,6 +321,12 @@ namespace diary
     std::string file_name = global.diary.title + ".html";
     std::ofstream file(file_name);
 
+    if (!file.is_open())
+    {
+      print_error("impossible d'exporter l'agenda " + file_name + " !");
+      return;
+    }
+
     // Head of HTML file
     file << "<!DOCTYPE html>\n<html lang=\"fr\">\n<head>\n";
     file << "<meta charset=\"UTF-8\">\n<title>" << global.diary.title << "</title>\n";
@@ -378,7 +384,7 @@ namespace diary
 
     if (!file.is_open())
     {
-      show_error("impossible d'ouvir l'agenda : " + file_name + " !");
+      print_error("impossible d'enregistrer l'agenda : " + file_name + " !");
       return;
     }
 
@@ -411,7 +417,7 @@ namespace diary
         return;
 
       default:
-        show_error("réponse invalide !");
+        print_error("réponse invalide !");
         break;
       }
     } while (true);
@@ -445,7 +451,7 @@ namespace diary
 
     if (!file.is_open())
     {
-      show_error("impossible d'ouvrir le fichier " + file_name + '.');
+      print_error("impossible d'ouvrir le fichier " + file_name + '.');
       return {};
     }
 
@@ -589,7 +595,7 @@ namespace diary
       }
       else
       {
-        show_error("aucune action ne correspond à la sélection.");
+        print_error("aucune action ne correspond à la sélection.");
       }
     } while (global.state != diary::STATE::EXIT);
   }
@@ -630,7 +636,7 @@ namespace diary
       }
       else
       {
-        show_error("aucune action ne correspond à la sélection.");
+        print_error("aucune action ne correspond à la sélection.");
       }
     } while (global.state != diary::STATE::EXIT);
   }

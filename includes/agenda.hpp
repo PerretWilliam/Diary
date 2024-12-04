@@ -56,7 +56,7 @@ namespace diary
   };
 
   void clear_screen();
-  void show_error(const std::string &msg);
+  void print_error(const std::string &msg);
   std::string getUID(std::size_t len);
   bool diary_exist(const std::string &diary_name);
 
