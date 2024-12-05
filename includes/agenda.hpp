@@ -2,8 +2,11 @@
 #include <vector>
 #include <functional>
 #include <forward_list>
+#include <filesystem>
 
 #include "../includes/date.hpp"
+
+namespace fs = std::filesystem;
 
 namespace diary
 {
@@ -40,6 +43,7 @@ namespace diary
   {
     STATE state;
     Diary diary;
+    fs::path export_path = fs::current_path() / "export";
   };
 
   struct Entry
@@ -58,7 +62,11 @@ namespace diary
   void clear_screen();
   void print_error(const std::string &msg);
   std::string getUID(std::size_t len);
+
+  // File
   bool diary_exist(const std::string &diary_name);
+  void open_file(std::string file_name);
+  void create_export_directory(const Global &global);
 
   // Inputs
   void getUserInput(char &c, const std::string &msg);
@@ -66,6 +74,7 @@ namespace diary
   std::string create_description(const std::string &msg);
   bool ask_same_date();
   bool ask_load_diary(Global &global);
+  bool ask_delete_diary(Global &global);
 
   // Events
   void print_events(const Global &global);
@@ -89,9 +98,10 @@ namespace diary
 
   // Load
   std::string load_description(std::ifstream &file);
-  Diary load_diary(const std::string &diary_name);
+  Diary load_diary(const fs::path &diary_path);
 
   // Menus
+  bool is_menu_or_entry_valid(const std::vector<Menu> &menus, size_t menu_index, size_t entry_index);
   std::vector<diary::Menu> initialize_menu();
   void show_menu(const Menu &menu);
   void print_choice_menu(const std::string &msg);

@@ -3,6 +3,10 @@
 #include <vector>
 #include <fstream>
 #include <sstream>
+#include <filesystem>
+#include <sys/stat.h>
+
+namespace fs = std::filesystem;
 
 #include "../includes/agenda.hpp"
 #include "../includes/date.hpp"
@@ -40,10 +44,47 @@ namespace diary
     }
     return uid;
   }
+
+  // File
   bool diary_exist(const std::string &diary_name)
   {
     std::ifstream file(diary_name + ".txt");
     return file.is_open();
+  }
+  void open_file(std::string file_name)
+  {
+    std::string path = fs::absolute(file_name).string();
+    std::string command;
+#ifdef _WIN32
+    command = "start " + file_name;
+#elif __APPLE__
+    command = "open " + file_name;
+    chmod(path.c_str(), 0644);
+#elif __linux__
+    command = "xdg-open " + path;
+    chmod(path.c_str(), 0644);
+#else
+    print_error("ouverture non supportée sur ce système.")
+#endif
+
+    if (std::system(command.c_str()) != 0)
+    {
+      print_error("impossible d'ouvrir le fichier.");
+    }
+  }
+  void create_export_directory(const Global &global)
+  {
+    if (!fs::exists(global.export_path))
+    {
+      if (fs::create_directory(global.export_path))
+      {
+        std::cout << GREEN << "Le dossier 'export' a été crée avec succès à l'emplacement : " << YELLOW << fs::absolute(global.export_path) << GREEN << '.' << RESET << std::endl;
+      }
+      else
+      {
+        print_error("impossible de crée le dossier.");
+      }
+    }
   }
 
   // Input
@@ -121,7 +162,7 @@ namespace diary
 
     do
     {
-      std::cout << BLUE << "Donnez le nom de l'agenda à charger (ou /exit pour retourner au menu principale)." << RESET << " > ";
+      std::cout << MAGENTA << "Donnez le nom de l'agenda à charger (ou /exit pour retourner au menu principal)" << RESET << " > ";
       std::getline(std::cin, diary_name);
 
       if (diary_name == "/exit")
@@ -136,7 +177,34 @@ namespace diary
       else
       {
         // Si l'agenda est trouvé on le charge.
-        global.diary = load_diary(diary_name);
+        global.diary = load_diary(global.export_path / diary_name);
+        return true;
+      }
+    } while (true);
+  }
+  bool ask_delete_diary(Global &global)
+  {
+    std::string diary_name;
+    char selection;
+
+    do
+    {
+      std::cout << MAGENTA << "Donnez le nom de l'agenda à supprimer (ou /exit pour retourner au menu principal)" << RESET << " > ";
+      std::getline(std::cin, diary_name);
+
+      if (diary_name == "/exit")
+      {
+        return false;
+      }
+      else if (!diary_exist(diary_name))
+      {
+        // Si l'agenda n'est pas trouvé on affiche une erreur.
+        print_error("l'agenda demandé n'existe pas.");
+      }
+      else
+      {
+        // Si l'agenda est trouvé on le charge.
+        global.diary = load_diary(global.export_path / diary_name);
         return true;
       }
     } while (true);
@@ -319,7 +387,7 @@ namespace diary
   void export_diary_HTML(const Global &global)
   {
     std::string file_name = global.diary.title + ".html";
-    std::ofstream file(file_name);
+    std::ofstream file(global.export_path / file_name);
 
     if (!file.is_open())
     {
@@ -364,7 +432,8 @@ namespace diary
     file << "</body>\n</html>\n";
     file.close();
 
-    std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << std::endl;
+    std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
+    open_file(file_name);
   }
 
   // Save
@@ -380,7 +449,7 @@ namespace diary
   void save_diary(const Global global)
   {
     std::string file_name = global.diary.title + ".txt";
-    std::ofstream file(file_name);
+    std::ofstream file(global.export_path / file_name);
 
     if (!file.is_open())
     {
@@ -443,15 +512,14 @@ namespace diary
     }
     return description;
   }
-  Diary load_diary(const std::string &diary_name)
+  Diary load_diary(const fs::path &diary_path)
   {
     Diary diary;
-    std::string file_name = diary_name + ".txt";
-    std::ifstream file(file_name);
+    std::ifstream file(diary_path);
 
     if (!file.is_open())
     {
-      print_error("impossible d'ouvrir le fichier " + file_name + '.');
+      print_error("impossible d'ouvrir le fichier " + diary_path.string() + '.');
       return {};
     }
 
@@ -483,11 +551,16 @@ namespace diary
   }
 
   // Menus
+  bool is_menu_or_entry_valid(const std::vector<Menu> &menus, size_t menu_index, size_t entry_index)
+  {
+    return !(menus.empty() || menus[menu_index].entrys.empty() || entry_index >= menus[menu_index].entrys.size());
+  }
   std::vector<diary::Menu> initialize_menu()
   {
 #ifdef _WIN32
     system(chcp 65001);
 #endif
+
     // Start menu.
     return {{{"\033[35mBienvene, que souhaitez-vous faire ?\033[0m", {{'1', "Crée un nouvel agenda", [](Global &global) -> void
                                                                        {
@@ -496,6 +569,10 @@ namespace diary
                                                                          global.state = STATE::MENU;
                                                                        }},
                                                                       {'2', "Charger un agenda", [](Global &global) -> void
+                                                                       {
+                                                                         global.state = STATE::LOAD_AGENDA;
+                                                                       }},
+                                                                      {'3', "Supprimer un agenda", [](Global &global) -> void
                                                                        {
                                                                          global.state = STATE::LOAD_AGENDA;
                                                                        }},
@@ -568,6 +645,11 @@ namespace diary
   }
   void start_menu(Global &global, const std::vector<diary::Menu> &menus)
   {
+    if (!is_menu_or_entry_valid(menus, 0, 0))
+    {
+      print_error("le menu ou les entrées sont vides !");
+      return;
+    }
     char selection;
     do
     {
@@ -580,62 +662,152 @@ namespace diary
       }
       else if (selection == '2')
       {
-        menus[0].entrys[1].launch(global);
-        bool is_loaded = ask_load_diary(global);
-        if (is_loaded)
+        if (is_menu_or_entry_valid(menus, 0, 1))
         {
-          global.state = STATE::MENU;
-          main_menu(global, menus);
+          menus[0].entrys[1].launch(global);
+          bool is_loaded = ask_load_diary(global);
+          if (is_loaded)
+          {
+            global.state = STATE::MENU;
+            main_menu(global, menus);
+          }
+          else
+          {
+            global.state = STATE::MENU;
+          }
         }
         else
         {
-          global.state = STATE::MENU;
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
+      }
+      else if (selection == '3')
+      {
+        if (is_menu_or_entry_valid(menus, 0, 2))
+        {
+          menus[0].entrys[2].launch(global);
+          bool is_loaded = ask_load_diary(global);
+          if (is_loaded)
+          {
+            global.state = STATE::MENU;
+            main_menu(global, menus);
+          }
+          else
+          {
+            global.state = STATE::MENU;
+          }
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
         }
       }
       else if (selection == 'q')
       {
-        menus[0].entrys[2].launch(global);
+        if (is_menu_or_entry_valid(menus, 0, 3))
+        {
+          menus[0].entrys[3].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else
       {
-        print_error("aucune action ne correspond à la sélection.");
+        print_error("aucune action ne correspond à la sélection !");
       }
     } while (global.state != diary::STATE::EXIT);
   }
-  void main_menu(Global &global, const std::vector<diary::Menu> &menu)
+  void main_menu(Global &global, const std::vector<diary::Menu> &menus)
   {
+    if (!is_menu_or_entry_valid(menus, 1, 0))
+    {
+      print_error("le menu ou les entrées sont vides !");
+      global.state = STATE::EXIT;
+      return;
+    }
     char selection;
     do
     {
-      show_menu(menu[1]);
+      show_menu(menus[1]);
       getUserInput(selection, "> ");
       if (selection == '1')
       {
-        menu[1].entrys[0].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 0))
+        {
+          menus[1].entrys[0].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == '2')
       {
-        menu[1].entrys[1].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 1))
+        {
+          menus[1].entrys[1].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == '3')
       {
-        menu[1].entrys[2].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 2))
+        {
+          menus[1].entrys[2].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == '4')
       {
-        menu[1].entrys[3].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 3))
+        {
+          menus[1].entrys[3].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == '5')
       {
-        menu[1].entrys[4].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 4))
+        {
+          menus[1].entrys[4].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == '6')
       {
-        menu[1].entrys[5].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 5))
+        {
+          menus[1].entrys[5].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else if (selection == 'q')
       {
-        menu[1].entrys[6].launch(global);
+        if (is_menu_or_entry_valid(menus, 1, 6))
+        {
+          menus[1].entrys[6].launch(global);
+        }
+        else
+        {
+          print_error("impossible d'ouvrir le menu ou l'entrée !");
+        }
       }
       else
       {
