@@ -20,6 +20,7 @@ int main()
   diary::clear_screen();
 
   std::vector<diary::Menu> menus = diary::initialize_menu();
+  diary::create_export_directory(global);
   diary::start_menu(global, menus);
 
   return EXIT_SUCCESS;
