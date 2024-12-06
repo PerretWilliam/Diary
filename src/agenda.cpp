@@ -46,9 +46,9 @@ namespace diary
   }
 
   // File
-  bool diary_exist(const std::string &diary_name)
+  bool diary_exist(const fs::path &diary_path)
   {
-    std::ifstream file(diary_name + ".txt");
+    std::ifstream file(diary_path.string() + ".txt");
     return file.is_open();
   }
   void open_file(std::string file_name)
@@ -84,6 +84,17 @@ namespace diary
       {
         print_error("impossible de crée le dossier.");
       }
+    }
+  }
+  void delete_diary(const fs::path &diary_path)
+  {
+    if (fs::remove(diary_path.string() + ".txt"))
+    {
+      std::cout << GREEN << "L'agenda à l'emplacement " << BLUE << diary_path << ".txt" << GREEN << " a bien été supprimé" << RESET << std::endl;
+    }
+    else
+    {
+      print_error("impossible de supprimer l'agenda.");
     }
   }
 
@@ -169,7 +180,7 @@ namespace diary
       {
         return false;
       }
-      else if (!diary_exist(diary_name))
+      else if (!diary_exist(global.export_path / diary_name))
       {
         // Si l'agenda n'est pas trouvé on affiche une erreur.
         print_error("l'agenda demandé n'existe pas.");
@@ -196,15 +207,15 @@ namespace diary
       {
         return false;
       }
-      else if (!diary_exist(diary_name))
+      else if (!diary_exist(global.export_path / diary_name))
       {
         // Si l'agenda n'est pas trouvé on affiche une erreur.
         print_error("l'agenda demandé n'existe pas.");
       }
       else
       {
-        // Si l'agenda est trouvé on le charge.
-        global.diary = load_diary(global.export_path / diary_name);
+        // Si l'agenda est trouvé on le supprime.
+        delete_diary(global.export_path / diary_name);
         return true;
       }
     } while (true);
@@ -515,11 +526,11 @@ namespace diary
   Diary load_diary(const fs::path &diary_path)
   {
     Diary diary;
-    std::ifstream file(diary_path);
+    std::ifstream file(diary_path.string() + ".txt");
 
     if (!file.is_open())
     {
-      print_error("impossible d'ouvrir le fichier " + diary_path.string() + '.');
+      print_error("impossible d'ouvrir le fichier " + diary_path.string() + ".txt.");
       return {};
     }
 
@@ -686,16 +697,7 @@ namespace diary
         if (is_menu_or_entry_valid(menus, 0, 2))
         {
           menus[0].entrys[2].launch(global);
-          bool is_loaded = ask_load_diary(global);
-          if (is_loaded)
-          {
-            global.state = STATE::MENU;
-            main_menu(global, menus);
-          }
-          else
-          {
-            global.state = STATE::MENU;
-          }
+          ask_delete_diary(global);
         }
         else
         {
