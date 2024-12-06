@@ -1,7 +1,6 @@
 # SAÉ S1.01 - Implémentation de besoin client
 
-> La saé S1.01 consiste en la création d'un programme permettant la gestion d'agendas.
-Pour cette SAÉ, la gestion d'agendas a dû être programmée.
+> Pour cette SAÉ, la gestion d'agendas a dû être programmée.
 
 ---
 ## Extraire le dossier.
