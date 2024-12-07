@@ -65,11 +65,10 @@ menu 2
 expect -re "NouvelAgenda.*Description.*Aucun.*"
 send "\n"
 
-
 ### Edit the diary
+menu 1
 
 ## We start by the title
-menu 1
 expect -re "Saisissez le titre de l'agenda"
 send "/NouvelAgendaModifie\n"
 expect "Erreur : saisissez un titre sans '/' !"
