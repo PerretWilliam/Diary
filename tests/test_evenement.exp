@@ -1,0 +1,135 @@
+#!/usr/bin/expect -f 
+
+set testName "test_file"
+set directory "log"
+set file "$testName.log"
+
+if {![file exists $directory]} {
+  exec mkdir $directory
+}
+log_file -noappend ./$directory/$file
+
+set timeout 1
+expect_after timeout { send_user "\nEchec du $testName ! Temps dépassé ! Les données ont été écrites dans : /tests/$directory/$file\n" ; exit 1 }
+
+proc menu {index} {
+  expect -re "Modifier.*Afficher.*Ajouter.*Supprimer.*Exporter.*Enregistrer.*Quitter.*"
+  send "$index\n"
+}
+
+spawn ../agenda
+
+expect -re "Crée.*Charger.*Supprimer.*Quitter.*"
+send "1\n"
+
+### Création de l'agenda
+expect -re "titre.*agenda.*"
+send "Anniversaires\n"
+expect -re "description.*agenda.*quitter.*"
+send "Description de mon premier agenda,\nil contient tous les anniversaire et,\nplein de saut de ligne.\r.\n"
+
+### Création d'un évènement
+menu 3
+
+## Titre et description
+expect -re "titre.*évènement.*"
+send "\n"
+expect "Erreur : saisissez un titre non vide !"
+
+expect -re "titre.*évènement.*"
+send "Anniversaire Louise\n"
+expect -re "description.*évènement.*quitter.*"
+send "L'anniversaire sera dans un restaurant chic.\nNous avons besoin de roses.\nJe dois appeler Sébastien.\r.\n"
+
+## Création des dates
+expect -re "date.*début.*"
+send "21 02 2024 21 59\n"
+expect "Erreur : format de la date incorrect !"
+expect -re "date.*début.*"
+send "21/02/2024 21:59\n"
+expect -re "Voulez-vous.*date.*début.*fin.*"
+send "3\n"
+expect "Erreur : ce n'est pas une réponse valide !"
+expect -re "Voulez-vous.*date.*début.*fin.*"
+send "2\n"
+expect -re "date.*fin.*"
+send "29/02/2023 12:00\n"
+expect "Erreur : date non valide !"
+expect -re "date.*fin.*"
+send "29/02/2024 12:00\n"
+
+### Création d'un deuxième évènement
+menu 3 
+
+expect -re "titre.*évènement.*"
+send "Anniversaire Marc\n"
+expect -re "description.*évènement.*quitter.*"
+send "L'anniversaire sera dans une salle des fêtes.\nNous avons besoin de bonbons.\nJe dois appeler Louise.\r.\n"
+
+## Création des dates
+expect -re "date.*début.*"
+send "30/06/2024 21:59\n"
+expect -re "Voulez-vous.*date.*début.*fin.*"
+send "2\n"
+expect -re "date.*fin.*"
+send "28/02/2022 12:00\n"
+expect "Erreur : les dates sont inversées !"
+expect -re "date.*début.*"
+send "30/06/2024 21:59\n"
+expect -re "Voulez-vous.*date.*début.*fin.*"
+send "2\n"
+expect -re "date.*fin.*"
+send "28/02/2025 12:00\n"
+
+### Affichage de l'agenda
+menu 2
+expect -re "Anniversaires.*Description.*Anniversaire.*sera.*restaurant.*"
+send "\n"
+
+menu q
+
+expect -re "modifié.*enregistrer.*Oui.*Non"
+send "1\n"
+
+expect -re "agenda.*enregistré.*fichier.*txt.*"
+
+expect eof
+
+spawn ../agenda
+
+expect -re "Crée.*Charger.*Supprimer.*Quitter.*"
+send "2\n"
+
+expect -re "agenda.*charger.*exit.*menu.*"
+send "Anniversaires\n"
+
+expect -re "L'agenda.*chargé.*"
+
+### Affichage de l'agenda
+menu 2
+expect -re "Anniversaires.*Description.*Anniversaire.*Louise.*"
+send "\n"
+
+menu 4
+expect -re "Donnez.*titre.*évènement.*supprimer"
+send "Anniversaire Louise\n"
+
+expect -re "existe.*plusieurs.*ID.*"
+
+expect {
+  -re "Donnez l'ID de l'évènement à supprimer (ou 'r' pour retourner au menu).*" {
+    set id [regexp -inline -- {[a-f0-9]{10,10}} $expect_out(buffer)]
+    send_user "\n$id\n"
+    send "$id\n"
+  }
+}
+
+expect -re "évènement.*bien.*supprimé"
+
+menu 6
+expect -re "agenda.*enregistré.*fichier.*txt"
+
+menu q
+
+expect eof
+

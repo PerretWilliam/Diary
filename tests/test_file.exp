@@ -1,0 +1,125 @@
+#!/usr/bin/expect -f 
+
+set testName "test_file"
+set directory "log"
+set file "$testName.log"
+
+if {![file exists $directory]} {
+  exec mkdir $directory
+}
+log_file -noappend ./$directory/$file
+
+set timeout 1
+expect_after timeout { send_user "\nEchec du $testName ! Temps dépassé ! Les données ont été écrites dans : /tests/$directory/$file\n" ; exit 1 }
+
+proc first_menu {char} {
+  expect "Bienvenue, que souhaitez-vous faire ?"
+  expect -re "Crée un nouvel agenda"
+  expect -re "Charger un agenda"
+  expect -re "Supprimer un agenda"
+  expect -re "Quitter"
+  send "$char\n"
+}
+
+proc menu {char} {
+  expect "Bienvenue dans l'agenda."
+  expect -re "Modifier l'agenda"
+  expect -re "Afficher l'agenda"
+  expect -re "Ajouter un événement"
+  expect -re "Supprimer un événement"
+  expect -re "Exporter au format HTML"
+  expect -re "Enregistrer l'agenda"
+  expect -re "Quitter"
+  send "$char\n"
+}
+
+spawn ../agenda
+
+first_menu 1
+
+### Création de l'agenda
+expect -re "Saisissez le titre de l'agenda"
+send "Anniversaires\n"
+expect -re "Saisissez la description de l'agenda"
+send "Description de mon premier agenda,\nil contient tous les anniversaire et,\nplein de saut de ligne.\r.\n"
+
+### Création d'un évènement
+menu 3
+
+## Titre et description
+expect -re "Saisissez le titre de l'évènement"
+send "Anniversaire Louise\n"
+expect -re "Saisissez la description de l'évènement"
+send "L'anniversaire sera dans un restaurant chic.\nNous avons besoin de roses.\nJe dois appeler Sébastien.\r.\n"
+
+## Création des dates
+expect -re "Saisissez la date de début"
+send "21/03/2024 21:59\n"
+expect "Voulez-vous que la date de début soit également la date de fin ?"
+send "1\n"
+
+### Affichage de l'agenda
+menu 2
+expect -re "Anniversaires.*Description.*Anniversaire.*sera.*restaurant.*"
+send "\n"
+
+menu q
+
+expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "1. Oui"
+expect "2. Non"
+send "3\n"
+expect "Erreur : réponse invalide !"
+expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "1. Oui"
+expect "2. Non"
+send "Phrase\n"
+expect "Erreur : réponse invalide !"
+expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "1. Oui"
+expect "2. Non"
+send "1\n"
+
+expect -re "agenda.*enregistré.*fichier.*txt.*"
+
+expect eof
+
+spawn ../agenda
+
+first_menu 2
+
+expect -re "Donnez le nom de l'agenda à charger"
+send "Aniverrssaire\n"
+expect "Erreur : l'agenda demandé n'existe pas."
+expect -re "Donnez le nom de l'agenda à charger*"
+send "Anniversaires\n"
+
+expect "L'agenda a été chargé."
+
+### Affichage de l'agenda
+menu 2
+expect -re "Anniversaires.*Description.*Anniversaire.*Louise.*"
+send "\n"
+
+menu 4
+expect -re "Donnez le titre de l'évènement à supprimer"
+send "Anniversaire Louise\n"
+
+expect -re "existe.*plusieurs.*ID.*"
+
+expect {
+  -re "Donnez l'ID de l'évènement à supprimer.*" {
+    set id [regexp -inline -- {[a-f0-9]{10,10}} $expect_out(buffer)]
+    send "$id\n"
+  }
+}
+
+expect -re "L'évènement avec l'ID.*"
+
+menu 6
+expect -re "L'agenda a été enregistré dans le fichier.*"
+
+menu q
+
+expect eof
+

@@ -1,0 +1,103 @@
+#!/usr/bin/expect -f 
+
+set testName "test_menu"
+set directory "log"
+set file "$testName.log"
+
+if {![file exists $directory]} {
+  exec mkdir $directory
+}
+log_file -noappend ./$directory/$file
+
+set timeout 1
+expect_after timeout { send_user "\nEchec du $testName ! Temps dépassé ! Les données ont été écrites dans : /tests/$directory/$file\n" ; exit 1 }
+
+proc first_menu {char} {
+  expect "Bienvenue, que souhaitez-vous faire ?"
+  expect -re "Crée un nouvel agenda"
+  expect -re "Charger un agenda"
+  expect -re "Supprimer un agenda"
+  expect -re "Quitter"
+  send "$char\n"
+}
+
+proc menu {char} {
+  expect "Bienvenue dans l'agenda."
+  expect -re "Modifier l'agenda"
+  expect -re "Afficher l'agenda"
+  expect -re "Ajouter un événement"
+  expect -re "Supprimer un événement"
+  expect -re "Exporter au format HTML"
+  expect -re "Enregistrer l'agenda"
+  expect -re "Quitter"
+  send "$char\n"
+}
+
+spawn ../agenda
+
+### Menu show when the user starts the program
+first_menu 4
+expect "Erreur : aucune action ne correspond à la sélection !"
+first_menu "Mot"
+expect "Erreur : aucune action ne correspond à la sélection !"
+first_menu 1
+
+### Create the diary
+
+## We start by the title
+expect -re "Saisissez le titre de l'agenda"
+send "\n"
+expect "Erreur : saisissez un titre non vide !"
+expect -re "Saisissez le titre de l'agenda"
+send "NouvelAgenda\n"
+
+## Then with the description
+expect -re "Saisissez la description de l'agenda"
+send "Description de mon premier agenda,\nje veux qu'il soit beau et,\nplein de saut de ligne.\r.\n"
+
+menu 7
+expect "Erreur : aucune action ne correspond à la sélection."
+menu "Petit mot"
+expect "Erreur : aucune action ne correspond à la sélection."
+
+### Show diary
+menu 2
+expect -re "NouvelAgenda.*Description.*Aucun.*"
+send "\n"
+
+### Edit the diary
+menu 1
+
+## We start by the title
+expect -re "Saisissez le titre de l'agenda"
+send "/NouvelAgendaModifie\n"
+expect "Erreur : saisissez un titre sans '/' !"
+expect -re "Saisissez le titre de l'agenda"
+send "NouvelAgendaModifie\n"
+
+## Then with the description
+expect -re "Saisissez la description de l'agenda"
+send "Description de mon premier agenda modifie,\nje veux qu'il soit meilleur et,\nplein de saut de ligne lui aussi.\r.\n"
+
+### Show diary
+menu 2
+expect -re "NouvelAgenda.*Description.*Aucun.*"
+send "\n" 
+
+### Quit the diary
+menu q
+
+### Ask if the user wants to save the diary
+expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "1. Oui"
+expect "2. Non"
+send "3\n"
+expect "Erreur : réponse invalide !"
+## We don't save it
+expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "1. Oui"
+expect "2. Non"
+send "2\n"
+
+expect eof
+send_user "Test $testName réussit avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"
