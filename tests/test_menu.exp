@@ -97,7 +97,28 @@ expect "Erreur : réponse invalide !"
 expect "L'agenda a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
-send "2\n"
+send "1\n"
+
+expect -re "L'agenda a été enregistré dans le fichier.*"
 
 expect eof
+
+spawn ../agenda
+
+first_menu 3
+
+expect -re "Donnez le nom de l'agenda à supprimer.*"
+send "NouvelAgendaModifia\n"
+
+expect "Erreur : l'agenda demandé n'existe pas."
+
+expect -re "Donnez le nom de l'agenda à supprimer.*"
+send "NouvelAgendaModifie\n"
+
+expect -re "L'agenda à l'emplacement"
+
+first_menu "q"
+
+expect eof
+
 send_user "Test $testName réussit avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"

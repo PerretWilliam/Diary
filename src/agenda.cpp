@@ -100,7 +100,7 @@ namespace diary
     // If we can remove the diary, then we print a message to confirm it, else, we print an error
     if (fs::remove(diary_path.string() + ".txt"))
     {
-      std::cout << GREEN << "L'agenda à l'emplacement " << BLUE << diary_path << ".txt" << GREEN << " a bien été supprimé" << RESET << std::endl;
+      std::cout << GREEN << "L'agenda à l'emplacement " << BLUE << diary_path << GREEN << " a bien été supprimé" << RESET << std::endl;
     }
     else
     {
