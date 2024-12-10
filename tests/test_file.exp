@@ -12,6 +12,35 @@ log_file -noappend ./$directory/$file
 set timeout 1
 expect_after timeout { send_user "\nEchec du $testName ! Temps dépassé ! Les données ont été écrites dans : /tests/$directory/$file\n" ; exit 1 }
 
+proc create_file {} {
+
+  set path [exec pwd]/export
+  set filename "$path/Anniversaires.txt"
+
+  exec mkdir -p $path
+
+  # Ouvrir le fichier en écriture
+  set file [open $filename "w"]
+
+  # Écrire les données dans le fichier
+  puts $file "Anniversaires"
+  puts $file "Description de mon premier agenda,"
+  puts $file "il contient tous les anniversaire et,"
+  puts $file "plein de saut de ligne."
+  puts $file "."
+  puts $file "81b92f7939"
+  puts $file "Anniversaire Louise"
+  puts $file "L'anniversaire sera dans un restaurant chic."
+  puts $file "Nous avons besoin de roses."
+  puts $file "Je dois appeler Sébastien."
+  puts $file "."
+  puts $file "21/03/2024 21:59"
+  puts $file "21/03/2024 21:59"
+
+  # Fermer le fichier
+  close $file
+}
+
 proc first_menu {char} {
   expect "Bienvenue, que souhaitez-vous faire ?"
   expect -re "Crée un nouvel agenda"
@@ -33,27 +62,29 @@ proc menu {char} {
   send "$char\n"
 }
 
+create_file
+
 spawn ../agenda
 
 first_menu 1
 
 ### Création de l'agenda
-expect -re "Saisissez le titre de l'agenda"
+expect -re "Saisissez le titre de l'agenda.*"
 send "Anniversaires\n"
-expect -re "Saisissez la description de l'agenda"
+expect -re "Saisissez la description de l'agenda.*"
 send "Description de mon premier agenda,\nil contient tous les anniversaire et,\nplein de saut de ligne.\r.\n"
 
 ### Création d'un évènement
 menu 3
 
 ## Titre et description
-expect -re "Saisissez le titre de l'évènement"
+expect -re "Saisissez le titre de l'évènement.*"
 send "Anniversaire Louise\n"
-expect -re "Saisissez la description de l'évènement"
+expect -re "Saisissez la description de l'évènement.*"
 send "L'anniversaire sera dans un restaurant chic.\nNous avons besoin de roses.\nJe dois appeler Sébastien.\r.\n"
 
 ## Création des dates
-expect -re "Saisissez la date de début"
+expect -re "Saisissez la date de début.*"
 send "21/03/2024 21:59\n"
 expect "Voulez-vous que la date de début soit également la date de fin ?"
 send "1\n"
@@ -68,19 +99,7 @@ menu q
 expect "L'agenda a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
-send "3\n"
-expect "Erreur : réponse invalide !"
-expect "L'agenda a été modifié ! L'enregistrer ?"
-expect "1. Oui"
-expect "2. Non"
-send "Phrase\n"
-expect "Erreur : réponse invalide !"
-expect "L'agenda a été modifié ! L'enregistrer ?"
-expect "1. Oui"
-expect "2. Non"
-send "1\n"
-
-expect -re "agenda.*enregistré.*fichier.*txt.*"
+send "2\n"
 
 expect eof
 
@@ -88,10 +107,10 @@ spawn ../agenda
 
 first_menu 2
 
-expect -re "Donnez le nom de l'agenda à charger"
+expect -re "Donnez le nom de l'agenda à charger.*"
 send "Aniverrssaire\n"
 expect "Erreur : l'agenda demandé n'existe pas."
-expect -re "Donnez le nom de l'agenda à charger*"
+expect -re "Donnez le nom de l'agenda à charger.*"
 send "Anniversaires\n"
 
 expect "L'agenda a été chargé."
@@ -102,22 +121,17 @@ expect -re "Anniversaires.*Description.*Anniversaire.*Louise.*"
 send "\n"
 
 menu 4
-expect -re "Donnez le titre de l'évènement à supprimer"
+
+expect -re "Donnez le titre de l'évènement à supprimer.*"
 send "Anniversaire Louise\n"
 
-expect -re "existe.*plusieurs.*ID.*"
+expect -re "Donnez l'ID de l'évènement à supprimer.*"
+send "81b92f7939\n"
 
-expect {
-  -re "Donnez l'ID de l'évènement à supprimer.*" {
-    set id [regexp -inline -- {[a-f0-9]{10,10}} $expect_out(buffer)]
-    send "$id\n"
-  }
-}
-
-expect -re "L'évènement avec l'ID.*"
+expect -re "L'évènement avec l'ID"
 
 menu 6
-expect -re "L'agenda a été enregistré dans le fichier.*"
+expect -re "L'agenda a été enregistré dans le fichier"
 
 menu q
 

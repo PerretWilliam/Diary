@@ -22,8 +22,22 @@ Un cmake est à votre disposition pour créer tous les fichiers permettants la c
 
 Pour Linux : 
 ```bash
-$ cmake
+$ cmake .
 ```
+
+Pour Windows :
+> Vous devez spécifier le générateur pour Visual Studio lors de l'exécution de cmake. Par exemple, pour Visual Studio 2019 :
+
+```bash
+$ cmake -G "Visual Studio 16 2019" .
+```
+
+Ensuite, compilez le programme avec :
+
+```bash
+$ cmake --build . --config Release
+```
+
 
 Puis, vous devez ensuite compiler le programme avec le Makefile qui vous sera crée.
 
@@ -32,19 +46,14 @@ Pour Linux :
 $ make
 ```
 
-Pour Windows
-```bash
-$ make win
-```
-
-Une fois fait, vous devriez avoir soit agenda pour Linux soit agenda.exe pour Windows.
+Une fois fait, vous devriez avoir soit **agenda** pour Linux soit **agenda.exe** pour Windows.
 
 ---  
 
 ### Le menu d'arrivé
 > Lors du lancement du programme, un dossier export sera crée à la racine du projet s'il n'existe pas (dans le cas où vous le supprimez par erreur), il contiendra tous ce qui est exporté par le programme.
 
-Lorsque vous allez lancer le programme pour la première fois, vous arriverez sur ce menu :
+Lorsque vous allez lancer le programme, vous arriverez sur ce menu :
 
 Bienvene, que souhaitez-vous faire ?
 [1] Crée un nouvel agenda
@@ -65,7 +74,6 @@ Bienvenue dans l'agenda.
 [5] Exporter au format HTML
 [6] Enregistrer l'agenda
 [q] Quitter
-> 
 
 Lorsque vous modifiez l'agenda, il ne s'enregistrera que si vous le faites.
 
@@ -73,17 +81,23 @@ Lorsque vous modifiez l'agenda, il ne s'enregistrera que si vous le faites.
 
 ### Les dates
 
-> Le programme vous indiquera toujours quoi faire et vous affichera des erreurs si la réponse attendut n'est pas la bonne
+> Vous devez respecter ce format pour la date : jj/mm/aaaa hh:mm
 
 Saisissez la date de début (jj/mm/aaaa hh:mm) > 21042006 21:59
+> Dans le cas où votre saisi est incorrect, le programme vous le signalera.
 "Erreur : format de la date incorrect !"
 
-> Vous avez deux possibilités pour la date soit : jj/mm/aaaa hh:mm ou jj mm aaaa hh mm
-Saisissez la date de début (jj/mm/aaaa hh:mm) > 21/04/2006 21:59 OU Saisissez la date de début (jj/mm/aaaa hh:mm) > 21 04 2006 21 59
+Saisissez la date de début (jj/mm/aaaa hh:mm) > 21/04/2006 21:59
 
 ---
 ## Jeu de tests  
-Vous avez à votre disposition, un jeu de tests fait avec *expect*.
+Tous d'abords, il est important que vous vous situez dans le dossier de test pour lancer les tests.
+
+```bash
+cd tests
+```
+
+Vous avez à votre disposition, des jeux de tests fait avec *expect*.
 
 Dans un dossier *tests*, trois tests seront à votre disposition : 
   - *test_menu.exp* : Pour le test des menus.
@@ -91,3 +105,16 @@ Dans un dossier *tests*, trois tests seront à votre disposition :
   - *test_file.exp* : Pour le test de la gestion de fichier (sauvegarde, chargement et suppression).
 
 > Tous les tests créeront un fichier {nom du test}.log dans un dossier crée nommé 'log'.
+> Sachez que le fichier export sera crée dans le dossier 'tests'.
+
+Pour lancer les tests, vous avez un menu à votre disposition, faite : 
+
+```bash
+./launch.sh
+```
+
+> Si les tests où le script bash ne sont pas exécutable, faites : 
+
+```bash
+chmod +x launch.sh test_menu.exp test_evenement.exp test_file.exp
+```
