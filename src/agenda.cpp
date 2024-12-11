@@ -62,18 +62,17 @@ namespace diary
   void open_file(std::string file_name)
   {
     // When we export an file like HTML, we open it
-    std::string path = fs::absolute(EXPORT_FOLDER + file_name).string();
     std::string command;
 
     // Check on which operating system is the user and do the right command
 #ifdef _WIN32
-    command = "start " + path;
+    command = "start " + file_name;
 #elif __APPLE__
-    command = "open " + path;
-    chmod(path.c_str(), 0644);
+    command = "open " + file_name;
+    chmod(file_name.c_str(), 0644);
 #elif __linux__
-    command = "xdg-open " + path;
-    chmod(path.c_str(), 0644);
+    command = "xdg-open " + file_name + " > /dev/null 2>&1";
+    chmod(file_name.c_str(), 0644);
 #else
     print_error("ouverture non supportée sur ce système.")
 #endif
@@ -504,7 +503,7 @@ namespace diary
 
     // Confirm that the file has been export and open it
     std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
-    open_file(EXPORT_FOLDER + file_name);
+    open_file(global.export_path / file_name);
   }
 
   // Save
