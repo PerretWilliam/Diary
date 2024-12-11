@@ -6,10 +6,13 @@
 #include <filesystem>
 #include <sys/stat.h>
 
-namespace fs = std::filesystem;
-
 #include "../includes/agenda.hpp"
 #include "../includes/date.hpp"
+
+#define FILE_EXTENTION ".txt"
+#define EXPORT_FOLDER "export/"
+
+namespace fs = std::filesystem;
 
 // We name the color to make the code easier to read
 #define RESET "\033[0m"
@@ -59,14 +62,14 @@ namespace diary
   void open_file(std::string file_name)
   {
     // When we export an file like HTML, we open it
-    std::string path = fs::absolute(file_name).string();
+    std::string path = fs::absolute(EXPORT_FOLDER + file_name).string();
     std::string command;
 
     // Check on which operating system is the user and do the right command
 #ifdef _WIN32
-    command = "start " + file_name;
+    command = "start " + path;
 #elif __APPLE__
-    command = "open " + file_name;
+    command = "open " + path;
     chmod(path.c_str(), 0644);
 #elif __linux__
     command = "xdg-open " + path;
@@ -91,7 +94,7 @@ namespace diary
       }
       else
       {
-        print_error("impossible de crée le dossier.");
+        print_error("impossible de créer le dossier.");
       }
     }
   }
@@ -398,7 +401,7 @@ namespace diary
     // Print the diary events
     print_events(global);
 
-    std::cout << MAGENTA << "Taper entrée pour quitter...";
+    std::cout << MAGENTA << "Tapez entrée pour quitter...";
     std::cin.get();
   }
   Diary create_diary()
@@ -501,7 +504,7 @@ namespace diary
 
     // Confirm that the file has been export and open it
     std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
-    open_file(file_name);
+    open_file(EXPORT_FOLDER + file_name);
   }
 
   // Save
@@ -518,7 +521,7 @@ namespace diary
   void save_diary(const Global global)
   {
     // Create the diary file in 'txt' format
-    std::string file_name = global.diary.title + ".txt";
+    std::string file_name = global.diary.title + FILE_EXTENTION;
     std::ofstream file(global.export_path / file_name);
 
     if (!file.is_open())
@@ -594,12 +597,12 @@ namespace diary
   Diary load_diary(const fs::path &diary_path)
   {
     Diary diary;
-    std::ifstream file(diary_path.string() + ".txt");
+    std::ifstream file(diary_path.string() + FILE_EXTENTION);
 
     if (!file.is_open())
     {
       // If we can't open the file, we throw an error
-      print_error("impossible d'ouvrir le fichier " + diary_path.string() + ".txt.");
+      print_error("impossible d'ouvrir le fichier " + diary_path.string() + FILE_EXTENTION);
       return {};
     }
 
@@ -649,7 +652,7 @@ namespace diary
     */
     // To show the accents on Windows
 #ifdef _WIN32
-    system(chcp 65001);
+    system("chcp 65001");
 #endif
 
     // Start menu.

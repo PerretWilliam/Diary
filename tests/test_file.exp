@@ -136,4 +136,5 @@ expect -re "L'agenda a été enregistré dans le fichier"
 menu q
 
 expect eof
+send_user "Test $testName réussi avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"
 

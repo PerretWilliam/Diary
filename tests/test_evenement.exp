@@ -162,7 +162,7 @@ menu 2
 expect -re "Anniversaires.*Description.*Anniversaire.*sera.*restaurant.*"
 send "\n"
 
-menu q
+menu qsend_user "Test $testName réussi avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"
 
 # Ask to save the agenda
 expect "L'agenda a été modifié ! L'enregistrer ?"
@@ -203,5 +203,6 @@ expect -re "L'agenda a été enregistré dans le fichier"
 
 # Close the program
 menu "q"
-expect eof
 
+expect eof
+send_user "Test $testName réussi avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"
