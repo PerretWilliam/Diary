@@ -159,10 +159,11 @@ send "28/02/2025 12:00\n"
 
 ### Print the agenda
 menu 2
-expect -re "Anniversaires.*Description.*Anniversaire.*sera.*restaurant.*"
+expect -re "Anniversaires.*"
+expect -re "anniversaire.*sera.*restaurant.*"
 send "\n"
 
-menu qsend_user "Test $testName réussi avec succès ! Les données ont été écrites dans : /tests/$directory/$file\n"
+menu q
 
 # Ask to save the agenda
 expect "L'agenda a été modifié ! L'enregistrer ?"

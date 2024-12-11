@@ -56,7 +56,7 @@ namespace diary
   bool diary_exist(const fs::path &diary_path)
   {
     // Check if the diary exists, if not return false
-    std::ifstream file(diary_path.string() + ".txt");
+    std::ifstream file(diary_path.string() + FILE_EXTENTION);
     return file.is_open();
   }
   void open_file(std::string file_name)
@@ -100,13 +100,35 @@ namespace diary
   void delete_diary(const fs::path &diary_path)
   {
     // If we can remove the diary, then we print a message to confirm it, else, we print an error
-    if (fs::remove(diary_path.string() + ".txt"))
+    if (fs::remove(diary_path.string() + FILE_EXTENTION))
     {
       std::cout << GREEN << "L'agenda à l'emplacement " << BLUE << diary_path << GREEN << " a bien été supprimé" << RESET << std::endl;
     }
     else
     {
       print_error("impossible de supprimer l'agenda.");
+    }
+  }
+  void print_saved_diary(const fs::path &export_path)
+  {
+    bool has_diary = false;
+
+    // We print all the diary saved in the export folder with .txt extension
+    for (const auto &entry : fs::directory_iterator(export_path))
+    {
+      if (entry.path().extension() == FILE_EXTENTION)
+      {
+        if (!has_diary)
+        {
+          std::cout << MAGENTA << "Voici les agendas sauvegardés dans le dossier 'export' : " << RESET << std::endl;
+          has_diary = true;
+        }
+        std::cout << "- " << entry.path().stem() << std::endl;
+      }
+    }
+    if (!has_diary)
+    {
+      std::cout << "Aucun agenda sauvegardé dans le dossier 'export'." << std::endl;
     }
   }
 
@@ -193,20 +215,24 @@ namespace diary
     {
       /* The user can load an diary or just return to the menu with /exit
       This is why we don't want a '/' in the name of the diary */
+      print_saved_diary(global.export_path);
       std::cout << MAGENTA << "Donnez le nom de l'agenda à charger (ou /exit pour retourner au menu principal)" << RESET << " > ";
       std::getline(std::cin, diary_name);
 
       if (diary_name == "/exit")
       {
+        clear_screen();
         return false;
       }
       else if (!diary_exist(global.export_path / diary_name))
       {
+        clear_screen();
         // If the diary can't be found, we print an error
         print_error("l'agenda demandé n'existe pas.");
       }
       else
       {
+        clear_screen();
         // Si l'agenda est trouvé on le charge.
         global.diary = load_diary(global.export_path / diary_name);
         return true;
@@ -221,20 +247,24 @@ namespace diary
 
     do
     {
+      print_saved_diary(global.export_path);
       std::cout << MAGENTA << "Donnez le nom de l'agenda à supprimer (ou /exit pour retourner au menu principal)" << RESET << " > ";
       std::getline(std::cin, diary_name);
 
       if (diary_name == "/exit")
       {
+        clear_screen();
         return false;
       }
       else if (!diary_exist(global.export_path / diary_name))
       {
+        clear_screen();
         // Si l'agenda n'est pas trouvé on affiche une erreur.
         print_error("l'agenda demandé n'existe pas.");
       }
       else
       {
+        clear_screen();
         // Si l'agenda est trouvé on le supprime.
         delete_diary(global.export_path / diary_name);
         return true;
@@ -305,6 +335,7 @@ namespace diary
         condition = true;
       }
     } while (!condition);
+    clear_screen();
     return event;
   }
   void add_event(Global &global)
@@ -346,6 +377,7 @@ namespace diary
     // If we don't found any events with the name given, we return to the menu
     if (!is_found)
     {
+      clear_screen();
       print_error("aucun évènement ne comporte ce nom !");
       return;
     }
@@ -361,6 +393,7 @@ namespace diary
 
       if (id == "r")
       {
+        clear_screen();
         // Return to the menu
         global.state == STATE::MENU;
         return;
@@ -383,6 +416,7 @@ namespace diary
 
       if (!is_found)
       {
+        clear_screen();
         // If the id is equal to no event, we print an error and we ask again
         print_error("l'ID " + id + " n'existe pas !");
       }
@@ -392,7 +426,6 @@ namespace diary
   // Diary
   void print_diary(const Global &global)
   {
-    clear_screen();
     // Print the diary.
     std::cout << global.diary.title << std::endl;
     std::cout << global.diary.description << std::endl;
@@ -757,6 +790,7 @@ namespace diary
       getUserInput(selection, "> ");
       if (selection == '1')
       {
+        clear_screen();
         menus[0].entrys[0].launch(global);
         main_menu(global, menus);
       }
@@ -764,6 +798,7 @@ namespace diary
       // Load a diary
       else if (selection == '2')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 0, 1))
         {
           menus[0].entrys[1].launch(global);
@@ -787,6 +822,7 @@ namespace diary
       // Delete a diary
       else if (selection == '3')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 0, 2))
         {
           menus[0].entrys[2].launch(global);
@@ -801,6 +837,7 @@ namespace diary
       // Quit the program
       else if (selection == 'q')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 0, 3))
         {
           menus[0].entrys[3].launch(global);
@@ -836,6 +873,7 @@ namespace diary
       // Modify the diary
       if (selection == '1')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 0))
         {
           menus[1].entrys[0].launch(global);
@@ -849,6 +887,7 @@ namespace diary
       // Print the diary
       else if (selection == '2')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 1))
         {
           menus[1].entrys[1].launch(global);
@@ -862,6 +901,7 @@ namespace diary
       // Add an event
       else if (selection == '3')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 2))
         {
           menus[1].entrys[2].launch(global);
@@ -875,6 +915,7 @@ namespace diary
       // Remove an event
       else if (selection == '4')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 3))
         {
           menus[1].entrys[3].launch(global);
@@ -888,6 +929,7 @@ namespace diary
       // Export the diary in HTML
       else if (selection == '5')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 4))
         {
           menus[1].entrys[4].launch(global);
@@ -901,6 +943,7 @@ namespace diary
       // Save the diary
       else if (selection == '6')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 5))
         {
           menus[1].entrys[5].launch(global);
@@ -914,6 +957,7 @@ namespace diary
       // Quit the diary if modifications are done, we ask if the user wants to save it
       else if (selection == 'q')
       {
+        clear_screen();
         if (is_menu_or_entry_valid(menus, 1, 6))
         {
           menus[1].entrys[6].launch(global);
