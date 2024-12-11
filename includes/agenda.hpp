@@ -64,9 +64,11 @@ namespace diary
   std::string getUID(std::size_t len);
 
   // File
-  bool diary_exist(const std::string &diary_name);
-  void open_file(std::string file_name);
+  bool diary_exist(const fs::path &diary_path);
+  void open_file(const std::string &file_name);
   void create_export_directory(const Global &global);
+  void delete_diary(const fs::path &diary_path);
+  void print_saved_diary(const fs::path &export_path);
 
   // Inputs
   void getUserInput(char &c, const std::string &msg);

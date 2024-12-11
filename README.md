@@ -3,6 +3,7 @@
 > Pour cette SAÉ, la gestion d'agendas a dû être programmée.
 
 ---
+
 ## Extraire le dossier.
 Le code vous est donné dans l'archive source_code.tar.gz, vous devez tout d'abord le décompresser.
 
@@ -16,37 +17,25 @@ Dans le fichier extrait, vous avez trois dossiers :
   - *CMakeLists.txt* permettant de crée les fichiers nécessaire à la compilation du programme.
 
 ---
+
 ## Compilation  
 
 Un cmake est à votre disposition pour créer tous les fichiers permettants la compilation du programme.
 
-Pour Linux : 
+Pour Windows et Linux : 
 ```bash
 $ cmake .
 ```
 
-Pour Windows :
-> Vous devez spécifier le générateur pour Visual Studio lors de l'exécution de cmake. Par exemple, pour Visual Studio 2019 :
+Pour Linux, vous devez ensuite compiler le programme avec le Makefile qui vous sera crée.
 
-```bash
-$ cmake -G "Visual Studio 16 2019" .
-```
-
-Ensuite, compilez le programme avec :
-
-```bash
-$ cmake --build . --config Release
-```
-
-
-Puis, vous devez ensuite compiler le programme avec le Makefile qui vous sera crée.
-
-Pour Linux : 
 ```bash
 $ make
 ```
 
-Une fois fait, vous devriez avoir soit **agenda** pour Linux soit **agenda.exe** pour Windows.
+> Ce qui vous crée un exécutable nommé **agenda**.
+
+Pour Windows, vous devez ouvrir le fichier **agenda.sln** avec Visual Studio et compiler le programme.
 
 ---  
 
@@ -90,6 +79,7 @@ Saisissez la date de début (jj/mm/aaaa hh:mm) > 21042006 21:59
 Saisissez la date de début (jj/mm/aaaa hh:mm) > 21/04/2006 21:59
 
 ---
+
 ## Jeu de tests  
 Tous d'abords, il est important que vous vous situez dans le dossier de test pour lancer les tests.
 
@@ -113,7 +103,7 @@ Pour lancer les tests, vous avez un menu à votre disposition, faite :
 ./launch.sh
 ```
 
-> Si les tests où le script bash ne sont pas exécutable, faites : 
+> Si les tests où le script bash n'ont pas les droits d'exécution, faites : 
 
 ```bash
 chmod +x launch.sh test_menu.exp test_evenement.exp test_file.exp

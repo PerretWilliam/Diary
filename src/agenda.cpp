@@ -59,7 +59,7 @@ namespace diary
     std::ifstream file(diary_path.string() + FILE_EXTENTION);
     return file.is_open();
   }
-  void open_file(std::string file_name)
+  void open_file(const std::string &file_name)
   {
     // When we export an file like HTML, we open it
     std::string command;
@@ -536,7 +536,7 @@ namespace diary
 
     // Confirm that the file has been export and open it
     std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
-    open_file(global.export_path / file_name);
+    open_file((global.export_path / file_name).string());
   }
 
   // Save
