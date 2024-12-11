@@ -688,71 +688,79 @@ namespace diary
 #endif
 
     // Start menu.
-    return {{{"\033[35mBienvenue, que souhaitez-vous faire ?\033[0m", {{'1', "Crée un nouvel agenda", [](Global &global) -> void
-                                                                        {
-                                                                          global.state = STATE::CREATE_AGENDA;
-                                                                          global.diary = create_diary();
-                                                                          global.state = STATE::MENU;
-                                                                        }},
-                                                                       {'2', "Charger un agenda", [](Global &global) -> void
-                                                                        {
-                                                                          global.state = STATE::LOAD_AGENDA;
-                                                                        }},
-                                                                       {'3', "Supprimer un agenda", [](Global &global) -> void
-                                                                        {
-                                                                          global.state = STATE::LOAD_AGENDA;
-                                                                        }},
-                                                                       {'q', "Quitter", [](Global &global) -> void
-                                                                        { global.state = STATE::EXIT; }}}},
+    return {{{"\033[35mBienvenue, que souhaitez-vous faire ?\033[0m", {
+      {'1', "Crée un nouvel agenda", [](Global &global) -> void 
+        {
+          global.state = STATE::CREATE_AGENDA;
+          global.diary = create_diary();
+          global.state = STATE::MENU;
+        }
+      },
+      {'2', "Charger un agenda", [](Global &global) -> void
+        {
+          global.state = STATE::LOAD_AGENDA;
+        }
+      },
+      {'3', "Supprimer un agenda", [](Global &global) -> void
+        {
+          global.state = STATE::LOAD_AGENDA;
+        }
+      },
+      {'q', "Quitter", [](Global &global) -> void
+        { global.state = STATE::EXIT; }
+      }
+    }},
              // Main menu
-             {"\033[35mBienvenue dans l'agenda.\033[0m", {{'1', "Modifier l'agenda", [](Global &global) -> void
-                                                           {
-                                                             global.state = STATE::CREATE_AGENDA;
-                                                             global.diary.title = create_title("Saisissez le titre de l'agenda");
-                                                             global.diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
-                                                             global.diary.is_modify = true;
-                                                             global.state = STATE::MENU;
-                                                           }},
-                                                          {'2', "Afficher l'agenda", [](Global &global) -> void
-                                                           {
-                                                             print_diary(global);
-                                                           }},
-                                                          {'3', "Ajouter un événement", [](Global &global) -> void
-                                                           {
-                                                             global.state = STATE::ADD_EVENT;
-                                                             add_event(global);
-                                                             global.state = STATE::MENU;
-                                                           }},
-                                                          {'4', "Supprimer un événement", [](Global &global) -> void
-                                                           {
-                                                             global.state = STATE::DEL_EVENT;
-                                                             delete_event(global);
-                                                             global.state = STATE::MENU;
-                                                           }},
-                                                          {'5', "Exporter au format HTML", [](Global &global) -> void
-                                                           {
-                                                             export_diary_HTML(global);
-                                                           }},
-                                                          {'6', "Enregistrer l'agenda", [](Global &global) -> void
-                                                           {
-                                                             save_diary(global);
-                                                             global.diary.is_modify = false;
-                                                           }},
-                                                          {'q', "Quitter", [](Global &global) -> void
-                                                           {
-                                                             if (global.diary.is_modify)
-                                                             {
-                                                               confirm_save(global);
-                                                             }
-                                                             global.state = STATE::EXIT;
-                                                           }}}},
-             // Add event menu
-             {"Menu ajout événement", {{'r', "Retour", [](diary::Global &global) -> void
-                                        { global.state = diary::STATE::MENU; }}}},
-
-             // Delete event menu
-             {"Menu suppression événement", {{'r', "Retour", [](diary::Global &global) -> void
-                                              { global.state = diary::STATE::MENU; }}}}}};
+    {"\033[35mBienvenue dans l'agenda.\033[0m", {
+      {'1', "Modifier l'agenda", [](Global &global) -> void
+        {
+          global.state = STATE::CREATE_AGENDA;
+          global.diary.title = create_title("Saisissez le titre de l'agenda");
+          global.diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
+          global.diary.is_modify = true;
+          global.state = STATE::MENU;
+        }
+      },
+      {'2', "Afficher l'agenda", [](Global &global) -> void
+        {
+          print_diary(global);
+        }
+      },
+      {'3', "Ajouter un événement", [](Global &global) -> void
+        {
+          global.state = STATE::ADD_EVENT;
+          add_event(global);
+          global.state = STATE::MENU;
+        }
+      },
+      {'4', "Supprimer un événement", [](Global &global) -> void
+        {
+          global.state = STATE::DEL_EVENT;
+          delete_event(global);
+          global.state = STATE::MENU;
+        }
+      },
+      {'5', "Exporter au format HTML", [](Global &global) -> void
+        {
+          export_diary_HTML(global);
+        }
+      },
+      {'6', "Enregistrer l'agenda", [](Global &global) -> void
+        {
+          save_diary(global);
+          global.diary.is_modify = false;
+        }
+      },
+      {'q', "Quitter", [](Global &global) -> void
+        {
+          if (global.diary.is_modify)
+            {
+              confirm_save(global);
+            }
+          global.state = STATE::EXIT;
+        }
+      }
+    }}}};
   }
   void print_choice_menu(const std::string &msg)
   {
