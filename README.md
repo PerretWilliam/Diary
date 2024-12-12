@@ -5,9 +5,9 @@
 ---
 
 ## Extraire le dossier.
-Le code vous est donné dans l'archive source_code.tar.gz, vous devez tout d'abord le décompresser.
+Le code vous est donné dans l'archive perret_william_agenda.tar.gz, vous devez tout d'abord le décompresser.
 
-tar -xzf source_code.tar.gz
+tar -xzf perret_william_agenda.tar.gz
 
 ## Contenu
 Dans le fichier extrait, vous avez trois dossiers :

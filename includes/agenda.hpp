@@ -13,10 +13,10 @@ namespace diary
   enum struct STATE
   {
     LAUNCH,
-    LOAD_AGENDA,
     MENU,
-    CHOICE,
     CREATE_AGENDA,
+    LOAD_AGENDA,
+    DEL_AGENDA,
     ADD_EVENT,
     DEL_EVENT,
     EXIT
@@ -39,13 +39,8 @@ namespace diary
     bool is_modify;
   };
 
-  struct Global
-  {
-    STATE state;
-    Diary diary;
-    fs::path export_path = fs::current_path() / "export";
-  };
-
+  // We create a struct Global before set is information because the entry needs the global and the menu needs the entry.
+  struct Global;
   struct Entry
   {
     char input;
@@ -57,6 +52,14 @@ namespace diary
   {
     std::string label;
     std::vector<Entry> entrys;
+  };
+
+  struct Global
+  {
+    STATE state;
+    Diary diary;
+    fs::path export_path = fs::current_path() / "export";
+    std::vector<Menu> menus;
   };
 
   void clear_screen();
@@ -103,10 +106,10 @@ namespace diary
   Diary load_diary(const fs::path &diary_path);
 
   // Menus
-  bool is_menu_or_entry_valid(const std::vector<Menu> &menus, size_t menu_index, size_t entry_index);
+  void launch_entry(Global &global, size_t menu_index, size_t entry_index);
   std::vector<diary::Menu> initialize_menu();
   void show_menu(const Menu &menu);
   void print_choice_menu(const std::string &msg);
-  void start_menu(Global &global, const std::vector<diary::Menu> &menus);
-  void main_menu(Global &global, const std::vector<diary::Menu> &menus);
+  void start_menu(Global &global);
+  void main_menu(Global &global);
 }

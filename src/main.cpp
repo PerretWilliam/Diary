@@ -15,13 +15,12 @@
 
 int main()
 {
-  diary::Global global = {diary::STATE::LAUNCH};
+  diary::Global global;
+  global.state = diary::STATE::LAUNCH;
 
-  diary::clear_screen();
-
-  std::vector<diary::Menu> menus = diary::initialize_menu();
+  global.menus = diary::initialize_menu();
   diary::create_export_directory(global);
-  diary::start_menu(global, menus);
+  diary::start_menu(global);
 
   return EXIT_SUCCESS;
 }

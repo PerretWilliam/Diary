@@ -68,11 +68,11 @@ namespace diary
 #ifdef _WIN32
     command = "start " + file_name;
 #elif __APPLE__
+    chmod(file_name.c_str(), 0644);
     command = "open " + file_name;
-    chmod(file_name.c_str(), 0644);
 #elif __linux__
-    command = "xdg-open " + file_name + " > /dev/null 2>&1";
     chmod(file_name.c_str(), 0644);
+    command = "xdg-open " + file_name + " > /dev/null 2>&1";
 #else
     print_error("ouverture non supportée sur ce système.")
 #endif
@@ -672,16 +672,26 @@ namespace diary
   }
 
   // Menus
-  bool is_menu_or_entry_valid(const std::vector<Menu> &menus, size_t menu_index, size_t entry_index)
+  void launch_entry(Global &global, size_t menu_index, size_t entry_index)
   {
     // We check if the menu or the entry selected is not empty
-    return !(menus.empty() || menus[menu_index].entrys.empty() || entry_index >= menus[menu_index].entrys.size());
+    if (!(global.menus.empty() || global.menus[menu_index].entrys.empty() || entry_index >= global.menus[menu_index].entrys.size()))
+    {
+      clear_screen();
+      global.menus[menu_index].entrys[entry_index].launch(global);
+    }
+    else
+    {
+      print_error("impossible d'ouvrir le menu ou l'entrée !");
+    }
   }
   std::vector<diary::Menu> initialize_menu()
   {
     /* Each menu has a label and a list of entrys.
     The entrys have one input, one label and an associated function, we launch this function if the entry is selected
     */
+
+    diary::clear_screen();
     // To show the accents on Windows
 #ifdef _WIN32
     system("chcp 65001");
@@ -694,16 +704,29 @@ namespace diary
           global.state = STATE::CREATE_AGENDA;
           global.diary = create_diary();
           global.state = STATE::MENU;
+          main_menu(global);
         }
       },
       {'2', "Charger un agenda", [](Global &global) -> void
         {
           global.state = STATE::LOAD_AGENDA;
+          bool is_loaded = ask_load_diary(global);
+          if (is_loaded)
+          {
+            global.state = STATE::MENU;
+            main_menu(global);
+          }
+          else
+          {
+            global.state = STATE::MENU;
+          }
         }
       },
       {'3', "Supprimer un agenda", [](Global &global) -> void
         {
-          global.state = STATE::LOAD_AGENDA;
+          global.state = STATE::DEL_AGENDA;
+          ask_delete_diary(global);
+          global.state = STATE::MENU;
         }
       },
       {'q', "Quitter", [](Global &global) -> void
@@ -780,80 +803,37 @@ namespace diary
       std::cout << '[' << entrys.input << "] " << entrys.label << std::endl;
     }
   }
-  void start_menu(Global &global, const std::vector<diary::Menu> &menus)
+  void start_menu(Global &global)
   {
     // When the user select an action, we always check if the entry is valid else, we print an error
 
-    // We check if the menu is not empty, else we quit it
-    if (!is_menu_or_entry_valid(menus, 0, 0))
-    {
-      print_error("le menu ou les entrées sont vides !");
-      return;
-    }
     char selection;
     do
     {
       // Create the diary, we don't need to check if the entry is empty here because the menu is not empty
-      show_menu(menus[0]);
+      show_menu(global.menus[0]);
       getUserInput(selection, "> ");
       if (selection == '1')
       {
-        clear_screen();
-        menus[0].entrys[0].launch(global);
-        main_menu(global, menus);
+        launch_entry(global, 0, 0);
       }
 
       // Load a diary
       else if (selection == '2')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 0, 1))
-        {
-          menus[0].entrys[1].launch(global);
-          bool is_loaded = ask_load_diary(global);
-          if (is_loaded)
-          {
-            global.state = STATE::MENU;
-            main_menu(global, menus);
-          }
-          else
-          {
-            global.state = STATE::MENU;
-          }
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 0, 1);
       }
 
       // Delete a diary
       else if (selection == '3')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 0, 2))
-        {
-          menus[0].entrys[2].launch(global);
-          ask_delete_diary(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 0, 2);
       }
 
       // Quit the program
       else if (selection == 'q')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 0, 3))
-        {
-          menus[0].entrys[3].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 0, 3);
       }
       else
       {
@@ -861,119 +841,56 @@ namespace diary
       }
     } while (global.state != diary::STATE::EXIT);
   }
-  void main_menu(Global &global, const std::vector<diary::Menu> &menus)
+  void main_menu(Global &global)
   {
     // When the user select an action, we always check if the entry is valid else, we print an error
 
-    // We check if the menu is not empty, else we quit it
-    if (!is_menu_or_entry_valid(menus, 1, 0))
-    {
-      print_error("le menu ou les entrées sont vides !");
-      global.state = STATE::EXIT;
-      return;
-    }
     char selection;
     do
     {
-      show_menu(menus[1]);
+      show_menu(global.menus[1]);
       getUserInput(selection, "> ");
 
       // Modify the diary
       if (selection == '1')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 0))
-        {
-          menus[1].entrys[0].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 0);
       }
 
       // Print the diary
       else if (selection == '2')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 1))
-        {
-          menus[1].entrys[1].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 1);
       }
 
       // Add an event
       else if (selection == '3')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 2))
-        {
-          menus[1].entrys[2].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 2);
       }
 
       // Remove an event
       else if (selection == '4')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 3))
-        {
-          menus[1].entrys[3].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 3);
       }
 
       // Export the diary in HTML
       else if (selection == '5')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 4))
-        {
-          menus[1].entrys[4].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 4);
       }
 
       // Save the diary
       else if (selection == '6')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 5))
-        {
-          menus[1].entrys[5].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 5);
       }
 
       // Quit the diary if modifications are done, we ask if the user wants to save it
       else if (selection == 'q')
       {
-        clear_screen();
-        if (is_menu_or_entry_valid(menus, 1, 6))
-        {
-          menus[1].entrys[6].launch(global);
-        }
-        else
-        {
-          print_error("impossible d'ouvrir le menu ou l'entrée !");
-        }
+        launch_entry(global, 1, 6);
       }
       else
       {
