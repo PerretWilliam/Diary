@@ -24,7 +24,7 @@ namespace date
     else if (date.month == 4 || date.month == 6 || date.month == 9 || date.month == 11)
       max_day = 30;
     else if (date.month == 2)
-      // Pour le mois de février, si l'année est bissextile, on prend 29 sinon 28.
+      // For the month of February, if the year is a leap year, we take 29 otherwise 28.
       max_day = is_leap_year(date.year) ? 29 : 28;
 
     return max_day;
