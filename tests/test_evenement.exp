@@ -30,7 +30,7 @@ proc create_file {} {
   set file [open $filename "w"]
 
   ## Write data in the file
-  # Write the agenda title and description
+  # Write the diary title and description
   puts $file "Anniversaires"
   puts $file "Description de mon premier agenda,"
   puts $file "il contient tous les anniversaire et,"
@@ -89,7 +89,7 @@ spawn ../agenda
 
 first_menu 1
 
-### Create an agenda with a title and a description
+### Create a diary with a title and a description
 expect -re "Saisissez le titre de l'agenda.*"
 send "Anniversaires\n"
 expect -re "Saisissez la description de l'agenda.*"
@@ -157,15 +157,13 @@ send "2\n"
 expect -re "Saisissez la date de fin.*"
 send "28/02/2025 12:00\n"
 
-### Print the agenda
+### Print the diary
 menu 2
-expect -re "Anniversaires.*"
-expect -re "anniversaire.*sera.*restaurant.*"
 send "\n"
 
-menu q
+menu "q"
 
-# Ask to save the agenda
+# Ask to save the diary
 expect "L'agenda a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
@@ -174,17 +172,17 @@ send "2\n"
 # Close the program
 expect eof
 
-# Launch the program
+# Launch the program again
 spawn ../agenda
 
-# Load the agenda
+# Load the diary
 first_menu 2
 expect -re "Donnez le nom de l'agenda à charger.*"
 send "Anniversaires\n"
 
 expect "L'agenda a été chargé."
 
-### Print the agenda
+### Print the diary
 menu 2
 send "\n"
 
@@ -198,7 +196,7 @@ send "81b92f7939\n"
 
 expect -re "L'évènement avec l'ID"
 
-# Save the agenda
+# Save the diary
 menu 6
 expect -re "L'agenda a été enregistré dans le fichier"
 

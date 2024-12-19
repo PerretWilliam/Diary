@@ -56,9 +56,9 @@ expect -re "Saisissez la description de l'agenda"
 send "Description de mon premier agenda,\nje veux qu'il soit beau et,\nplein de saut de ligne.\r.\n"
 
 menu 7
-expect "Erreur : aucune action ne correspond à la sélection."
+expect "Erreur : aucune action ne correspond à la sélection !"
 menu "Petit mot"
-expect "Erreur : aucune action ne correspond à la sélection."
+expect "Erreur : aucune action ne correspond à la sélection !"
 
 ### Show diary
 menu 2
