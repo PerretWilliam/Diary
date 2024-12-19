@@ -111,4 +111,7 @@ namespace diary
   void show_menu(const Menu &menu);
   void print_choice_menu(const std::string &msg);
   void menu(Global &global, std::size_t menu_index);
+
+  // Launch the diary
+  void launch_diary();
 }

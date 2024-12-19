@@ -819,4 +819,17 @@ namespace diary
       }
     } while (global.state != diary::STATE::EXIT);
   }
+
+  // Launch the diary
+  void launch_diary()
+  {
+    Global global;
+    global.state = diary::STATE::LAUNCH;
+
+    global.menus = diary::initialize_menu();
+    diary::create_export_directory(global);
+    
+    diary::STATE::MENU;
+    diary::menu(global, 0);
+  }
 }

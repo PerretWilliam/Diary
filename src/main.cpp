@@ -15,12 +15,7 @@
 
 int main()
 {
-  diary::Global global;
-  global.state = diary::STATE::LAUNCH;
-
-  global.menus = diary::initialize_menu();
-  diary::create_export_directory(global);
-  diary::menu(global,0 );
+  diary::launch_diary();
 
   return EXIT_SUCCESS;
 }
