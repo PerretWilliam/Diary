@@ -20,7 +20,7 @@ int main()
 
   global.menus = diary::initialize_menu();
   diary::create_export_directory(global);
-  diary::start_menu(global);
+  diary::menu(global,0 );
 
   return EXIT_SUCCESS;
 }

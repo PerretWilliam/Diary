@@ -4,26 +4,17 @@
 #include <fstream>
 #include <sstream>
 #include <filesystem>
+#include <map>
 #include <sys/stat.h>
 
 #include "../includes/agenda.hpp"
 #include "../includes/date.hpp"
+#include "../includes/color.hpp"
 
 #define FILE_EXTENTION ".txt"
 #define EXPORT_FOLDER "export/"
 
 namespace fs = std::filesystem;
-
-// We name the color to make the code easier to read
-#define RESET "\033[0m"
-#define BLACK "\033[30m"
-#define RED "\033[31m"
-#define GREEN "\033[32m"
-#define YELLOW "\033[33m"
-#define BLUE "\033[34m"
-#define MAGENTA "\033[35m"
-#define CYAN "\033[36m"
-#define WHITE "\033[37m"
 
 // Create of a namespace
 namespace diary
@@ -342,6 +333,7 @@ namespace diary
   {
     // We add the event to the diary events
     global.diary.events.push_front(create_event());
+    global.diary.is_modify = true;
   }
   void delete_event(Global &global)
   {
@@ -672,10 +664,10 @@ namespace diary
   }
 
   // Menus
-  void launch_entry(Global &global, size_t menu_index, size_t entry_index)
+  void launch_entry(Global &global, size_t menu_index, char entry_index)
   {
-    // We check if the menu or the entry selected is not empty
-    if (!(global.menus.empty() || global.menus[menu_index].entrys.empty() || entry_index >= global.menus[menu_index].entrys.size()))
+    // We check if the entry selected is not empty
+    if (!(global.menus[menu_index].entrys.empty()))
     {
       clear_screen();
       global.menus[menu_index].entrys[entry_index].launch(global);
@@ -685,13 +677,13 @@ namespace diary
       print_error("impossible d'ouvrir le menu ou l'entrée !");
     }
   }
-  std::vector<diary::Menu> initialize_menu()
+  std::vector<Menu> initialize_menu()
   {
     /* Each menu has a label and a list of entrys.
-    The entrys have one input, one label and an associated function, we launch this function if the entry is selected
+    The entrys can be found with their key, one label and an associated function, we launch this function if the entry is selected
     */
 
-    diary::clear_screen();
+    clear_screen();
     // To show the accents on Windows
 #ifdef _WIN32
     system("chcp 65001");
@@ -699,90 +691,90 @@ namespace diary
 
     // Start menu.
     return {{{"\033[35mBienvenue, que souhaitez-vous faire ?\033[0m", {
-      {'1', "Crée un nouvel agenda", [](Global &global) -> void 
-        {
-          global.state = STATE::CREATE_AGENDA;
-          global.diary = create_diary();
-          global.state = STATE::MENU;
-          main_menu(global);
-        }
-      },
-      {'2', "Charger un agenda", [](Global &global) -> void
-        {
-          global.state = STATE::LOAD_AGENDA;
-          bool is_loaded = ask_load_diary(global);
-          if (is_loaded)
-          {
-            global.state = STATE::MENU;
-            main_menu(global);
-          }
-          else
-          {
-            global.state = STATE::MENU;
-          }
-        }
-      },
-      {'3', "Supprimer un agenda", [](Global &global) -> void
-        {
-          global.state = STATE::DEL_AGENDA;
-          ask_delete_diary(global);
-          global.state = STATE::MENU;
-        }
-      },
-      {'q', "Quitter", [](Global &global) -> void
-        { global.state = STATE::EXIT; }
+      {'1', {"Crée un nouvel agenda", [](Global &global) -> void 
+      {
+        global.state = STATE::CREATE_AGENDA;
+        global.diary = create_diary();
+        global.state = STATE::MENU;
+        menu(global, 1);
       }
+      }},
+      {'2', {"Charger un agenda", [](Global &global) -> void
+      {
+        global.state = STATE::LOAD_AGENDA;
+        bool is_loaded = ask_load_diary(global);
+        if (is_loaded)
+        {
+        global.state = STATE::MENU;
+        menu(global, 1);
+        }
+        else
+        {
+        global.state = STATE::MENU;
+        }
+      }
+      }},
+      {'3', {"Supprimer un agenda", [](Global &global) -> void
+      {
+        global.state = STATE::DEL_AGENDA;
+        ask_delete_diary(global);
+        global.state = STATE::MENU;
+      }
+      }},
+      {'q', {"Quitter", [](Global &global) -> void
+      { global.state = STATE::EXIT; }
+      }}
     }},
-             // Main menu
+         // Main menu
     {"\033[35mBienvenue dans l'agenda.\033[0m", {
-      {'1', "Modifier l'agenda", [](Global &global) -> void
-        {
-          global.state = STATE::CREATE_AGENDA;
-          global.diary.title = create_title("Saisissez le titre de l'agenda");
-          global.diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
-          global.diary.is_modify = true;
-          global.state = STATE::MENU;
-        }
-      },
-      {'2', "Afficher l'agenda", [](Global &global) -> void
-        {
-          print_diary(global);
-        }
-      },
-      {'3', "Ajouter un événement", [](Global &global) -> void
-        {
-          global.state = STATE::ADD_EVENT;
-          add_event(global);
-          global.state = STATE::MENU;
-        }
-      },
-      {'4', "Supprimer un événement", [](Global &global) -> void
-        {
-          global.state = STATE::DEL_EVENT;
-          delete_event(global);
-          global.state = STATE::MENU;
-        }
-      },
-      {'5', "Exporter au format HTML", [](Global &global) -> void
-        {
-          export_diary_HTML(global);
-        }
-      },
-      {'6', "Enregistrer l'agenda", [](Global &global) -> void
-        {
-          save_diary(global);
-          global.diary.is_modify = false;
-        }
-      },
-      {'q', "Quitter", [](Global &global) -> void
-        {
-          if (global.diary.is_modify)
-            {
-              confirm_save(global);
-            }
-          global.state = STATE::EXIT;
-        }
+      {'1', {"Modifier l'agenda", [](Global &global) -> void
+      {
+        global.state = STATE::CREATE_AGENDA;
+        global.diary.title = create_title("Saisissez le titre de l'agenda");
+        global.diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
+        global.diary.is_modify = true;
+        global.state = STATE::MENU;
       }
+      }},
+      {'2', {"Afficher l'agenda", [](Global &global) -> void
+      {
+        print_diary(global);
+      }
+      }},
+      {'3', {"Ajouter un événement", [](Global &global) -> void
+      {
+        global.state = STATE::ADD_EVENT;
+        add_event(global);
+        global.state = STATE::MENU;
+      }
+      }},
+      {'4', {"Supprimer un événement", [](Global &global) -> void
+      {
+        global.state = STATE::DEL_EVENT;
+        delete_event(global);
+        global.state = STATE::MENU;
+      }
+      }},
+      {'5', {"Exporter au format HTML", [](Global &global) -> void
+      {
+        export_diary_HTML(global);
+      }
+      }},
+      {'6', {"Enregistrer l'agenda", [](Global &global) -> void
+      {
+        save_diary(global);
+        global.diary.is_modify = false;
+      }
+      }},
+      {'q', {"Quitter", [](Global &global) -> void
+      {
+        if (global.diary.is_modify)
+        {
+          confirm_save(global);
+        }
+        global.state = STATE::EXIT;
+      }
+      }}
     }}}};
   }
   void print_choice_menu(const std::string &msg)
@@ -798,103 +790,33 @@ namespace diary
     std::cout << menu.label << std::endl;
 
     // We show the entrys with their input and their label
-    for (Entry entrys : menu.entrys)
+    for (const auto &entry : menu.entrys)
     {
-      std::cout << '[' << entrys.input << "] " << entrys.label << std::endl;
+      std::cout << '[' << entry.first << "] " << entry.second.label << std::endl;
     }
   }
-  void start_menu(Global &global)
+  void menu(Global &global, std::size_t menu_index)
   {
     // When the user select an action, we always check if the entry is valid else, we print an error
+    if(global.menus[menu_index].entrys.empty())
+    {
+      print_error("le menu est vide !");
+      return;
+    }
 
     char selection;
     do
     {
       // Create the diary, we don't need to check if the entry is empty here because the menu is not empty
-      show_menu(global.menus[0]);
+      show_menu(global.menus[menu_index]);
       getUserInput(selection, "> ");
-      if (selection == '1')
+      if(auto search = global.menus[menu_index].entrys.find(selection); search != global.menus[menu_index].entrys.end())
       {
-        launch_entry(global, 0, 0);
-      }
-
-      // Load a diary
-      else if (selection == '2')
-      {
-        launch_entry(global, 0, 1);
-      }
-
-      // Delete a diary
-      else if (selection == '3')
-      {
-        launch_entry(global, 0, 2);
-      }
-
-      // Quit the program
-      else if (selection == 'q')
-      {
-        launch_entry(global, 0, 3);
+        launch_entry(global, menu_index, selection);
       }
       else
       {
         print_error("aucune action ne correspond à la sélection !");
-      }
-    } while (global.state != diary::STATE::EXIT);
-  }
-  void main_menu(Global &global)
-  {
-    // When the user select an action, we always check if the entry is valid else, we print an error
-
-    char selection;
-    do
-    {
-      show_menu(global.menus[1]);
-      getUserInput(selection, "> ");
-
-      // Modify the diary
-      if (selection == '1')
-      {
-        launch_entry(global, 1, 0);
-      }
-
-      // Print the diary
-      else if (selection == '2')
-      {
-        launch_entry(global, 1, 1);
-      }
-
-      // Add an event
-      else if (selection == '3')
-      {
-        launch_entry(global, 1, 2);
-      }
-
-      // Remove an event
-      else if (selection == '4')
-      {
-        launch_entry(global, 1, 3);
-      }
-
-      // Export the diary in HTML
-      else if (selection == '5')
-      {
-        launch_entry(global, 1, 4);
-      }
-
-      // Save the diary
-      else if (selection == '6')
-      {
-        launch_entry(global, 1, 5);
-      }
-
-      // Quit the diary if modifications are done, we ask if the user wants to save it
-      else if (selection == 'q')
-      {
-        launch_entry(global, 1, 6);
-      }
-      else
-      {
-        print_error("aucune action ne correspond à la sélection.");
       }
     } while (global.state != diary::STATE::EXIT);
   }

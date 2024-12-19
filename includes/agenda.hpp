@@ -3,6 +3,7 @@
 #include <functional>
 #include <forward_list>
 #include <filesystem>
+#include <map>
 
 #include "../includes/date.hpp"
 
@@ -43,7 +44,6 @@ namespace diary
   struct Global;
   struct Entry
   {
-    char input;
     std::string label;
     std::function<void(Global &)> launch;
   };
@@ -51,7 +51,7 @@ namespace diary
   struct Menu
   {
     std::string label;
-    std::vector<Entry> entrys;
+    std::map<char, Entry> entrys;
   };
 
   struct Global
@@ -106,10 +106,9 @@ namespace diary
   Diary load_diary(const fs::path &diary_path);
 
   // Menus
-  void launch_entry(Global &global, size_t menu_index, size_t entry_index);
+  void launch_entry(Global &global, size_t menu_index,  char entry_index);
   std::vector<diary::Menu> initialize_menu();
   void show_menu(const Menu &menu);
   void print_choice_menu(const std::string &msg);
-  void start_menu(Global &global);
-  void main_menu(Global &global);
+  void menu(Global &global, std::size_t menu_index);
 }
