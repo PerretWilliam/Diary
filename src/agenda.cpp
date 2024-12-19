@@ -12,7 +12,6 @@
 #include "../includes/color.hpp"
 
 #define FILE_EXTENTION ".txt"
-#define EXPORT_FOLDER "export/"
 
 namespace fs = std::filesystem;
 
