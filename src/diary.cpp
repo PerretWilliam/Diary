@@ -7,7 +7,7 @@
 #include <map>
 #include <sys/stat.h>
 
-#include "../includes/agenda.hpp"
+#include "../includes/diary.hpp"
 #include "../includes/date.hpp"
 #include "../includes/color.hpp"
 
@@ -92,11 +92,11 @@ namespace diary
     // If we can remove the diary, then we print a message to confirm it, else, we print an error
     if (fs::remove(diary_path.string() + FILE_EXTENTION))
     {
-      std::cout << GREEN << "L'agenda à l'emplacement " << BLUE << diary_path << GREEN << " a bien été supprimé" << RESET << std::endl;
+      std::cout << GREEN << "L'diary à l'emplacement " << BLUE << diary_path << GREEN << " a bien été supprimé" << RESET << std::endl;
     }
     else
     {
-      print_error("impossible de supprimer l'agenda.");
+      print_error("impossible de supprimer l'diary.");
     }
   }
   void print_saved_diary(const fs::path &export_path)
@@ -110,7 +110,7 @@ namespace diary
       {
         if (!has_diary)
         {
-          std::cout << MAGENTA << "Voici les agendas sauvegardés dans le dossier 'export' : " << RESET << std::endl;
+          std::cout << MAGENTA << "Voici les diarys sauvegardés dans le dossier 'export' : " << RESET << std::endl;
           has_diary = true;
         }
         std::cout << "- " << entry.path().stem() << std::endl;
@@ -118,7 +118,7 @@ namespace diary
     }
     if (!has_diary)
     {
-      std::cout << "Aucun agenda sauvegardé dans le dossier 'export'." << std::endl;
+      std::cout << "Aucun diary sauvegardé dans le dossier 'export'." << std::endl;
     }
   }
 
@@ -206,7 +206,7 @@ namespace diary
       /* The user can load an diary or just return to the menu with /exit
       This is why we don't want a '/' in the name of the diary */
       print_saved_diary(global.export_path);
-      std::cout << MAGENTA << "Donnez le nom de l'agenda à charger (ou /exit pour retourner au menu principal)" << RESET << " > ";
+      std::cout << MAGENTA << "Donnez le nom de l'diary à charger (ou /exit pour retourner au menu principal)" << RESET << " > ";
       std::getline(std::cin, diary_name);
 
       if (diary_name == "/exit")
@@ -218,12 +218,12 @@ namespace diary
       {
         clear_screen();
         // If the diary can't be found, we print an error
-        print_error("l'agenda demandé n'existe pas.");
+        print_error("l'diary demandé n'existe pas.");
       }
       else
       {
         clear_screen();
-        // Si l'agenda est trouvé on le charge.
+        // Si l'diary est trouvé on le charge.
         global.diary = load_diary(global.export_path / diary_name);
         return true;
       }
@@ -238,7 +238,7 @@ namespace diary
     do
     {
       print_saved_diary(global.export_path);
-      std::cout << MAGENTA << "Donnez le nom de l'agenda à supprimer (ou /exit pour retourner au menu principal)" << RESET << " > ";
+      std::cout << MAGENTA << "Donnez le nom de l'diary à supprimer (ou /exit pour retourner au menu principal)" << RESET << " > ";
       std::getline(std::cin, diary_name);
 
       if (diary_name == "/exit")
@@ -249,13 +249,13 @@ namespace diary
       else if (!diary_exist(global.export_path / diary_name))
       {
         clear_screen();
-        // Si l'agenda n'est pas trouvé on affiche une erreur.
-        print_error("l'agenda demandé n'existe pas.");
+        // Si l'diary n'est pas trouvé on affiche une erreur.
+        print_error("l'diary demandé n'existe pas.");
       }
       else
       {
         clear_screen();
-        // Si l'agenda est trouvé on le supprime.
+        // Si l'diary est trouvé on le supprime.
         delete_diary(global.export_path / diary_name);
         return true;
       }
@@ -432,8 +432,8 @@ namespace diary
     Diary diary;
 
     // We just ask for his title and description
-    diary.title = create_title("Saisissez le titre de l'agenda");
-    diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
+    diary.title = create_title("Saisissez le titre de l'diary");
+    diary.description = create_description("Saisissez la description de l'diary (laissez un '.' pour quitter)");
     return diary;
   }
 
@@ -481,7 +481,7 @@ namespace diary
     if (!file.is_open())
     {
       // If the file cannot be open, print an error
-      print_error("impossible d'exporter l'agenda " + file_name + " !");
+      print_error("impossible d'exporter l'diary " + file_name + " !");
       return;
     }
 
@@ -501,7 +501,7 @@ namespace diary
     file << "<h2>Événements</h2>\n";
     if (global.diary.events.empty())
     {
-      file << "<p>Aucun évènement dans l'agenda.</p>\n";
+      file << "<p>Aucun évènement dans l'diary.</p>\n";
     }
     else
     {
@@ -526,7 +526,7 @@ namespace diary
     file.close();
 
     // Confirm that the file has been export and open it
-    std::cout << GREEN << "L'agenda a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
+    std::cout << GREEN << "L'diary a été exporté dans le fichier : " << CYAN << file_name << GREEN << '.' << YELLOW << std::endl;
     open_file((global.export_path / file_name).string());
   }
 
@@ -550,7 +550,7 @@ namespace diary
     if (!file.is_open())
     {
       // If the file cannot be open, print an error
-      print_error("impossible d'enregistrer l'agenda : " + file_name + " !");
+      print_error("impossible d'enregistrer l'diary : " + file_name + " !");
       return;
     }
 
@@ -565,7 +565,7 @@ namespace diary
 
     // Close the file and show a confirm message
     file.close();
-    std::cout << GREEN << "L'agenda a été enregistré dans le fichier " << CYAN << file_name << GREEN << '.' << RESET << std::endl;
+    std::cout << GREEN << "L'diary a été enregistré dans le fichier " << CYAN << file_name << GREEN << '.' << RESET << std::endl;
   }
   void confirm_save(const Global &global)
   {
@@ -574,17 +574,17 @@ namespace diary
     {
       /* When the user quits the program, if there are modifications in the diary not saved,
       we ask if the user wants to save it */
-      print_choice_menu("L'agenda a été modifié ! L'enregistrer ?");
+      print_choice_menu("L'diary a été modifié ! L'enregistrer ?");
       getUserInput(selection, "> ");
       switch (selection)
       {
       case '1':
-        // Enregistrement de l'agenda.
+        // Enregistrement de l'diary.
         save_diary(global);
         return;
 
       case '2':
-        // On enregistre pas l'agenda.
+        // On enregistre pas l'diary.
         return;
 
       default:
@@ -658,7 +658,7 @@ namespace diary
 
     // We close the file, we show a confirm message and we return the diary loaded
     file.close();
-    std::cout << GREEN << "L'agenda a été chargé." << RESET << std::endl;
+    std::cout << GREEN << "L'diary a été chargé." << RESET << std::endl;
     return diary;
   }
 
@@ -690,17 +690,17 @@ namespace diary
 
     // Start menu.
     return {{{"\033[35mBienvenue, que souhaitez-vous faire ?\033[0m", {
-      {'1', {"Crée un nouvel agenda", [](Global &global) -> void 
+      {'1', {"Crée un nouvel diary", [](Global &global) -> void 
       {
-        global.state = STATE::CREATE_AGENDA;
+        global.state = STATE::CREATE_diary;
         global.diary = create_diary();
         global.state = STATE::MENU;
         menu(global, 1);
       }
       }},
-      {'2', {"Charger un agenda", [](Global &global) -> void
+      {'2', {"Charger un diary", [](Global &global) -> void
       {
-        global.state = STATE::LOAD_AGENDA;
+        global.state = STATE::LOAD_diary;
         bool is_loaded = ask_load_diary(global);
         if (is_loaded)
         {
@@ -713,9 +713,9 @@ namespace diary
         }
       }
       }},
-      {'3', {"Supprimer un agenda", [](Global &global) -> void
+      {'3', {"Supprimer un diary", [](Global &global) -> void
       {
-        global.state = STATE::DEL_AGENDA;
+        global.state = STATE::DEL_diary;
         ask_delete_diary(global);
         global.state = STATE::MENU;
       }
@@ -725,17 +725,17 @@ namespace diary
       }}
     }},
          // Main menu
-    {"\033[35mBienvenue dans l'agenda.\033[0m", {
-      {'1', {"Modifier l'agenda", [](Global &global) -> void
+    {"\033[35mBienvenue dans l'diary.\033[0m", {
+      {'1', {"Modifier l'diary", [](Global &global) -> void
       {
-        global.state = STATE::CREATE_AGENDA;
-        global.diary.title = create_title("Saisissez le titre de l'agenda");
-        global.diary.description = create_description("Saisissez la description de l'agenda (laissez un '.' pour quitter)");
+        global.state = STATE::CREATE_diary;
+        global.diary.title = create_title("Saisissez le titre de l'diary");
+        global.diary.description = create_description("Saisissez la description de l'diary (laissez un '.' pour quitter)");
         global.diary.is_modify = true;
         global.state = STATE::MENU;
       }
       }},
-      {'2', {"Afficher l'agenda", [](Global &global) -> void
+      {'2', {"Afficher l'diary", [](Global &global) -> void
       {
         print_diary(global);
       }
@@ -759,7 +759,7 @@ namespace diary
         export_diary_HTML(global);
       }
       }},
-      {'6', {"Enregistrer l'agenda", [](Global &global) -> void
+      {'6', {"Enregistrer l'diary", [](Global &global) -> void
       {
         save_diary(global);
         global.diary.is_modify = false;

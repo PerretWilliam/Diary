@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 # Set the project name
-project(Agenda)
+project(diary)
 
 # Specify the C++ standard
 set(CMAKE_CXX_STANDARD 17)
@@ -14,4 +14,4 @@ include_directories(include)
 file(GLOB SOURCES "src/*.cpp")
 
 # Add the executable
-add_executable(agenda ${SOURCES})
+add_executable(diary ${SOURCES})

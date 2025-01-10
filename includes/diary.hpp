@@ -15,9 +15,9 @@ namespace diary
   {
     LAUNCH,
     MENU,
-    CREATE_AGENDA,
-    LOAD_AGENDA,
-    DEL_AGENDA,
+    CREATE_diary,
+    LOAD_diary,
+    DEL_diary,
     ADD_EVENT,
     DEL_EVENT,
     EXIT

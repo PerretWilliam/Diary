@@ -24,7 +24,7 @@ proc create_file {} {
 
   # Écrire les données dans le fichier
   puts $file "Anniversaires"
-  puts $file "Description de mon premier agenda,"
+  puts $file "Description de mon premier diary,"
   puts $file "il contient tous les anniversaire et,"
   puts $file "plein de saut de ligne."
   puts $file "."
@@ -43,36 +43,36 @@ proc create_file {} {
 
 proc first_menu {char} {
   expect "Bienvenue, que souhaitez-vous faire ?"
-  expect -re "Crée un nouvel agenda"
-  expect -re "Charger un agenda"
-  expect -re "Supprimer un agenda"
+  expect -re "Crée un nouvel diary"
+  expect -re "Charger un diary"
+  expect -re "Supprimer un diary"
   expect -re "Quitter"
   send "$char\n"
 }
 
 proc menu {char} {
-  expect "Bienvenue dans l'agenda."
-  expect -re "Modifier l'agenda"
-  expect -re "Afficher l'agenda"
+  expect "Bienvenue dans l'diary."
+  expect -re "Modifier l'diary"
+  expect -re "Afficher l'diary"
   expect -re "Ajouter un événement"
   expect -re "Supprimer un événement"
   expect -re "Exporter au format HTML"
-  expect -re "Enregistrer l'agenda"
+  expect -re "Enregistrer l'diary"
   expect -re "Quitter"
   send "$char\n"
 }
 
 create_file
 
-spawn ../agenda
+spawn ../diary
 
 first_menu 1
 
-### Création de l'agenda
-expect -re "Saisissez le titre de l'agenda.*"
+### Création de l'diary
+expect -re "Saisissez le titre de l'diary.*"
 send "Anniversaires\n"
-expect -re "Saisissez la description de l'agenda.*"
-send "Description de mon premier agenda,\nil contient tous les anniversaire et,\nplein de saut de ligne.\r.\n"
+expect -re "Saisissez la description de l'diary.*"
+send "Description de mon premier diary,\nil contient tous les anniversaire et,\nplein de saut de ligne.\r.\n"
 
 ### Création d'un évènement
 menu 3
@@ -89,33 +89,33 @@ send "21/03/2024 21:59\n"
 expect "Voulez-vous que la date de début soit également la date de fin ?"
 send "1\n"
 
-### Affichage de l'agenda
+### Affichage de l'diary
 menu 2
 expect -re "Anniversaires.*Description.*Anniversaire.*sera.*restaurant.*"
 send "\n"
 
 menu q
 
-expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "L'diary a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
 send "2\n"
 
 expect eof
 
-spawn ../agenda
+spawn ../diary
 
 first_menu 2
 
-expect -re "Donnez le nom de l'agenda à charger.*"
+expect -re "Donnez le nom de l'diary à charger.*"
 send "Aniverrssaire\n"
-expect "Erreur : l'agenda demandé n'existe pas."
-expect -re "Donnez le nom de l'agenda à charger.*"
+expect "Erreur : l'diary demandé n'existe pas."
+expect -re "Donnez le nom de l'diary à charger.*"
 send "Anniversaires\n"
 
-expect "L'agenda a été chargé."
+expect "L'diary a été chargé."
 
-### Affichage de l'agenda
+### Affichage de l'diary
 menu 2
 expect -re "Anniversaires.*Description.*Anniversaire.*Louise.*"
 send "\n"
@@ -131,7 +131,7 @@ send "81b92f7939\n"
 expect -re "L'évènement avec l'ID"
 
 menu 6
-expect -re "L'agenda a été enregistré dans le fichier"
+expect -re "L'diary a été enregistré dans le fichier"
 
 menu q
 

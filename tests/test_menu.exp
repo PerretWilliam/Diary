@@ -14,26 +14,26 @@ expect_after timeout { send_user "\nEchec du $testName ! Temps dépassé ! Les d
 
 proc first_menu {char} {
   expect "Bienvenue, que souhaitez-vous faire ?"
-  expect -re "Crée un nouvel agenda"
-  expect -re "Charger un agenda"
-  expect -re "Supprimer un agenda"
+  expect -re "Crée un nouvel diary"
+  expect -re "Charger un diary"
+  expect -re "Supprimer un diary"
   expect -re "Quitter"
   send "$char\n"
 }
 
 proc menu {char} {
-  expect "Bienvenue dans l'agenda."
-  expect -re "Modifier l'agenda"
-  expect -re "Afficher l'agenda"
+  expect "Bienvenue dans l'diary."
+  expect -re "Modifier l'diary"
+  expect -re "Afficher l'diary"
   expect -re "Ajouter un événement"
   expect -re "Supprimer un événement"
   expect -re "Exporter au format HTML"
-  expect -re "Enregistrer l'agenda"
+  expect -re "Enregistrer l'diary"
   expect -re "Quitter"
   send "$char\n"
 }
 
-spawn ../agenda
+spawn ../diary
 
 ### Menu show when the user starts the program
 first_menu 4
@@ -45,15 +45,15 @@ first_menu 1
 ### Create the diary
 
 ## We start by the title
-expect -re "Saisissez le titre de l'agenda"
+expect -re "Saisissez le titre de l'diary"
 send "\n"
 expect "Erreur : saisissez un titre non vide !"
-expect -re "Saisissez le titre de l'agenda"
-send "NouvelAgenda\n"
+expect -re "Saisissez le titre de l'diary"
+send "Nouveldiary\n"
 
 ## Then with the description
-expect -re "Saisissez la description de l'agenda"
-send "Description de mon premier agenda,\nje veux qu'il soit beau et,\nplein de saut de ligne.\r.\n"
+expect -re "Saisissez la description de l'diary"
+send "Description de mon premier diary,\nje veux qu'il soit beau et,\nplein de saut de ligne.\r.\n"
 
 menu 7
 expect "Erreur : aucune action ne correspond à la sélection !"
@@ -62,60 +62,60 @@ expect "Erreur : aucune action ne correspond à la sélection !"
 
 ### Show diary
 menu 2
-expect -re "NouvelAgenda.*Description.*Aucun.*"
+expect -re "Nouveldiary.*Description.*Aucun.*"
 send "\n"
 
 ### Edit the diary
 menu 1
 
 ## We start by the title
-expect -re "Saisissez le titre de l'agenda"
-send "/NouvelAgendaModifie\n"
+expect -re "Saisissez le titre de l'diary"
+send "/NouveldiaryModifie\n"
 expect "Erreur : saisissez un titre sans '/' !"
-expect -re "Saisissez le titre de l'agenda"
-send "NouvelAgendaModifie\n"
+expect -re "Saisissez le titre de l'diary"
+send "NouveldiaryModifie\n"
 
 ## Then with the description
-expect -re "Saisissez la description de l'agenda"
-send "Description de mon premier agenda modifie,\nje veux qu'il soit meilleur et,\nplein de saut de ligne lui aussi.\r.\n"
+expect -re "Saisissez la description de l'diary"
+send "Description de mon premier diary modifie,\nje veux qu'il soit meilleur et,\nplein de saut de ligne lui aussi.\r.\n"
 
 ### Show diary
 menu 2
-expect -re "NouvelAgenda.*Description.*Aucun.*"
+expect -re "Nouveldiary.*Description.*Aucun.*"
 send "\n" 
 
 ### Quit the diary
 menu q
 
 ### Ask if the user wants to save the diary
-expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "L'diary a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
 send "3\n"
 expect "Erreur : réponse invalide !"
 ## We don't save it
-expect "L'agenda a été modifié ! L'enregistrer ?"
+expect "L'diary a été modifié ! L'enregistrer ?"
 expect "1. Oui"
 expect "2. Non"
 send "1\n"
 
-expect -re "L'agenda a été enregistré dans le fichier.*"
+expect -re "L'diary a été enregistré dans le fichier.*"
 
 expect eof
 
-spawn ../agenda
+spawn ../diary
 
 first_menu 3
 
-expect -re "Donnez le nom de l'agenda à supprimer.*"
-send "NouvelAgendaModifia\n"
+expect -re "Donnez le nom de l'diary à supprimer.*"
+send "NouveldiaryModifia\n"
 
-expect "Erreur : l'agenda demandé n'existe pas."
+expect "Erreur : l'diary demandé n'existe pas."
 
-expect -re "Donnez le nom de l'agenda à supprimer.*"
-send "NouvelAgendaModifie\n"
+expect -re "Donnez le nom de l'diary à supprimer.*"
+send "NouveldiaryModifie\n"
 
-expect -re "L'agenda à l'emplacement"
+expect -re "L'diary à l'emplacement"
 
 first_menu "q"
 

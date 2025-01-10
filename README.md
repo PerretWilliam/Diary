@@ -1,16 +1,13 @@
 # SAÉ S1.01 - Implementation of Client Needs
 
-> For this SAÉ, agenda management had to be programmed.
+> For this SAÉ, diary management had to be programmed.
 
 ---
 
-## Extract the folder.
-The code is provided to you in the archive perret_william_agenda.tar.gz, you must first decompress it.
-
 ## Content
 In the extracted folder, you have three directories:
-  - *src* containing the C++ code files: *main.cpp*, *date.cpp*, and *agenda.cpp*.
-  - *includes* containing the header files: *date.hpp* and *agenda.hpp*.
+  - *src* containing the C++ code files: *main.cpp*, *date.cpp*, and *diary.cpp*.
+  - *includes* containing the header files: *date.hpp* and *diary.hpp*.
   - *tests* containing the test cases that we will detail below.
   - *CMakeLists.txt* to create the necessary files for compiling the program.
 
@@ -31,9 +28,9 @@ For Linux, you must then compile the program with the Makefile that will be crea
 $ make
 ```
 
-> This will create an executable named **agenda**.
+> This will create an executable named **diary**.
 
-For Windows, you must open the **agenda.sln** file with Visual Studio and compile the program.
+For Windows, you must open the **diary.sln** file with Visual Studio and compile the program.
 
 ---  
 
@@ -43,28 +40,28 @@ For Windows, you must open the **agenda.sln** file with Visual Studio and compil
 When you start the program, you will arrive at this menu:
 
 Welcome, what would you like to do?
-[1] Create a new agenda
-[2] Load an agenda
-[3] Delete an agenda
+[1] Create a new diary
+[2] Load an diary
+[3] Delete an diary
 [q] Quit
 
-> When creating the title of your agenda, you are not allowed to use '/'.
+> When creating the title of your diary, you are not allowed to use '/'.
 
 ### The Main Menu
-Here is the menu you will be in after creating or loading the agenda.
+Here is the menu you will be in after creating or loading the diary.
 
-Welcome to the agenda.
-[1] Edit the agenda
-[2] View the agenda
+Welcome to the diary.
+[1] Edit the diary
+[2] View the diary
 [3] Add an event
 [4] Delete an event
 [5] Export to HTML format
-[6] Save the agenda
+[6] Save the diary
 [q] Quit
 
-When you edit the agenda, it will only be saved if you do so.
+When you edit the diary, it will only be saved if you do so.
 
-> If you quit the application after making changes, you will be asked whether or not you want to save the agenda, press '1' to save.
+> If you quit the application after making changes, you will be asked whether or not you want to save the diary, press '1' to save.
 
 ### Dates
 
