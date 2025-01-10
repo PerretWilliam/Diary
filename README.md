@@ -1,110 +1,108 @@
-# SAÉ S1.01 - Implémentation de besoin client
+# SAÉ S1.01 - Implementation of Client Needs
 
-> Pour cette SAÉ, la gestion d'agendas a dû être programmée.
+> For this SAÉ, agenda management had to be programmed.
 
 ---
 
-## Extraire le dossier.
-Le code vous est donné dans l'archive perret_william_agenda.tar.gz, vous devez tout d'abord le décompresser.
+## Extract the folder.
+The code is provided to you in the archive perret_william_agenda.tar.gz, you must first decompress it.
 
-tar -xzf perret_william_agenda.tar.gz
-
-## Contenu
-Dans le fichier extrait, vous avez trois dossiers :
-  - *src* contenant les fichiers du code C++ : *main.cpp*, *date.cpp* et *aganda.cpp*.
-  - *includes* contenant les fichiers d'en-tête : *date.hpp* *aganda.hpp*.
-  - *tests* contenant les jeux de tests que nous détaillerons plus bas.
-  - *CMakeLists.txt* permettant de crée les fichiers nécessaire à la compilation du programme.
+## Content
+In the extracted folder, you have three directories:
+  - *src* containing the C++ code files: *main.cpp*, *date.cpp*, and *agenda.cpp*.
+  - *includes* containing the header files: *date.hpp* and *agenda.hpp*.
+  - *tests* containing the test cases that we will detail below.
+  - *CMakeLists.txt* to create the necessary files for compiling the program.
 
 ---
 
 ## Compilation  
 
-Un cmake est à votre disposition pour créer tous les fichiers permettants la compilation du programme.
+A CMake file is available to create all the files necessary for compiling the program.
 
-Pour Windows et Linux : 
+For Windows and Linux:
 ```bash
 $ cmake .
 ```
 
-Pour Linux, vous devez ensuite compiler le programme avec le Makefile qui vous sera crée.
+For Linux, you must then compile the program with the Makefile that will be created.
 
 ```bash
 $ make
 ```
 
-> Ce qui vous crée un exécutable nommé **agenda**.
+> This will create an executable named **agenda**.
 
-Pour Windows, vous devez ouvrir le fichier **agenda.sln** avec Visual Studio et compiler le programme.
+For Windows, you must open the **agenda.sln** file with Visual Studio and compile the program.
 
 ---  
 
-### Le menu d'arrivé
-> Lors du lancement du programme, un dossier export sera crée à la racine du projet s'il n'existe pas (dans le cas où vous le supprimez par erreur), il contiendra tous ce qui est exporté par le programme.
+### The Welcome Menu
+> When the program starts, an export folder will be created at the root of the project if it does not exist (in case you delete it by mistake), it will contain everything exported by the program.
 
-Lorsque vous allez lancer le programme, vous arriverez sur ce menu :
+When you start the program, you will arrive at this menu:
 
-Bienvene, que souhaitez-vous faire ?
-[1] Crée un nouvel agenda
-[2] Charger un agenda
-[3] Supprimer un agenda
-[q] Quitter
+Welcome, what would you like to do?
+[1] Create a new agenda
+[2] Load an agenda
+[3] Delete an agenda
+[q] Quit
 
-> Lors de la création du titre de votre agenda, vous n'avez pas le droit d'utiliser des '/'.
+> When creating the title of your agenda, you are not allowed to use '/'.
 
-### Le menu principale
-Voici le menu dans lequel vous serez après avoir crée ou chargé l'agenda.
+### The Main Menu
+Here is the menu you will be in after creating or loading the agenda.
 
-Bienvenue dans l'agenda.
-[1] Modifier l'agenda
-[2] Afficher l'agenda
-[3] Ajouter un événement
-[4] Supprimer un événement
-[5] Exporter au format HTML
-[6] Enregistrer l'agenda
-[q] Quitter
+Welcome to the agenda.
+[1] Edit the agenda
+[2] View the agenda
+[3] Add an event
+[4] Delete an event
+[5] Export to HTML format
+[6] Save the agenda
+[q] Quit
 
-Lorsque vous modifiez l'agenda, il ne s'enregistrera que si vous le faites.
+When you edit the agenda, it will only be saved if you do so.
 
-> Dans le cas où vous quittez l'application après une modification, il vous sera demandé si oui ou non vous voulez enregistrer l'agenda, faites '1' pour enregistrer.
+> If you quit the application after making changes, you will be asked whether or not you want to save the agenda, press '1' to save.
 
-### Les dates
+### Dates
 
-> Vous devez respecter ce format pour la date : jj/mm/aaaa hh:mm
+> You must follow this format for the date: dd/mm/yyyy hh:mm
 
-Saisissez la date de début (jj/mm/aaaa hh:mm) > 21042006 21:59
-> Dans le cas où votre saisi est incorrect, le programme vous le signalera.
-"Erreur : format de la date incorrect !"
+Enter the start date (dd/mm/yyyy hh:mm) > 21042006 21:59
+> If your input is incorrect, the program will notify you.
+"Error: incorrect date format!"
 
-Saisissez la date de début (jj/mm/aaaa hh:mm) > 21/04/2006 21:59
+Enter the start date (dd/mm/yyyy hh:mm) > 21/04/2006 21:59
 
 ---
 
-## Jeu de tests  
-Tous d'abords, il est important que vous vous situez dans le dossier de test pour lancer les tests.
+## Test Cases  
+First of all, it is important that you are in the test directory to run the tests.
 
 ```bash
 cd tests
 ```
 
-Vous avez à votre disposition, des jeux de tests fait avec *expect*.
+You have at your disposal, test cases made with *expect*.
 
-Dans un dossier *tests*, trois tests seront à votre disposition : 
-  - *test_menu.exp* : Pour le test des menus.
-  - *test_evenement.exp* : Pour le test des évènements.
-  - *test_file.exp* : Pour le test de la gestion de fichier (sauvegarde, chargement et suppression).
+In a *tests* directory, three tests will be available to you:
+  - *test_menu.exp*: For testing the menus.
+  - *test_event.exp*: For testing the events.
+  - *test_file.exp*: For testing file management (saving, loading, and deleting).
 
-> Tous les tests créeront un fichier {nom du test}.log dans un dossier crée nommé 'log'.
-> Sachez que le fichier export sera crée dans le dossier 'tests'.
+> All tests will create a {test name}.log file in a created 'log' directory.
+> Note that the export file will be created in the 'tests' directory.
 
-Pour lancer les tests, vous avez un menu à votre disposition, faite : 
+To run the tests, you have a menu available, do:
 
 ```bash
 ./launch.sh
 ```
 
-> Si les tests où le script bash n'ont pas les droits d'exécution, faites : 
+> If the tests or the bash script do not have execution rights, do:
 
 ```bash
-chmod +x launch.sh test_menu.exp test_evenement.exp test_file.exp
+chmod +x launch.sh test_menu.exp test_event.exp test_file.exp
 ```
