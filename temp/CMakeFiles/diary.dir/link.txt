@@ -1,1 +1,0 @@
-/usr/bin/c++ CMakeFiles/diary.dir/src/date.cpp.o CMakeFiles/diary.dir/src/diary.cpp.o CMakeFiles/diary.dir/src/main.cpp.o -o diary 
